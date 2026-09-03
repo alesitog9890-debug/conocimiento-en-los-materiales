@@ -7,9 +7,9 @@ let rivalesRed = {}; // Para guardar los jugadores que nos envía el servidor
 
 function inicializarRed() {
   if (socket) return;
-  // Conectar al mismo host/puerto de donde se sirvió la página
-  // Así funciona tanto en localhost como cuando los alumnos entran por IP
-  socket = io(window.location.origin);
+  // Conectar al mismo host de donde se sirvió la página
+  // io() detecta automáticamente si es localhost o un dominio de Render
+  socket = io();
   window.socket = socket;
 
   socket.on('connect', () => {
@@ -57,16 +57,24 @@ function inicializarRed() {
   socket.on('raceStarting', (data) => {
     console.log('¡La carrera empieza en ' + data.countdown + ' segundos!');
     
-    // Si ya estamos en la pista esperando, arrancamos el conteo
+    // Verificamos el estado actual del juego local
     if (typeof Juego !== 'undefined' && Juego.estado) {
-      if (Juego.estado.estado === 'esperando_red') {
+      const state = Juego.estado.estado;
+      if (state === 'esperando_red') {
+        // Ya está en la pista esperando la señal
         Juego.iniciarConteoRed();
+        return;
       }
-      // Si ya está en 'cuenta' o 'corre', lo ignoramos (evita romper el juego por doble click)
-    } else if (enModoRed) {
-      // Si todavía estábamos armando el auto, nos manda a la pista a la fuerza
+      if (state === 'cuenta' || state === 'corre') {
+        // Ya arrancó su propia carrera, ignorar para evitar bugs
+        return;
+      }
+    }
+    
+    // Si no estábamos listos en pista (ej. estábamos en el taller o ya habíamos terminado)
+    if (enModoRed) {
       if(!cfgActual) cfgActual = armarConfig();
-      arrancarCarreraRed(true);
+      arrancarCarreraRed(true); // Forzar envío a pista e inicio
     }
   });
 
