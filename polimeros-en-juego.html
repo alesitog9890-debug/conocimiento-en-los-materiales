@@ -1,0 +1,3277 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Trivia, test de personalidad y ranking sobre propiedades de los polimeros. Catedra de Conocimiento de los Materiales, UTN FRTDF.">
+<meta name="theme-color" content="#6C5CE7">
+<title>Polímeros en Juego</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* ============ TOKENS ============ */
+:root{
+  --f-display:'Baloo 2','Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-body:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+
+  --violet:#6C5CE7; --cyan:#00C6FB; --magenta:#FF3CAC; --amber:#FFB020;
+  --green:#06D6A0; --red:#FF4D6D; --blue:#4776E6;
+
+  --bg-0:#EEF1FF; --bg-1:#F7F4FF;
+  --ink:#151B3B; --ink-2:#4A5478; --ink-3:#7A84A8;
+  --glass:rgba(255,255,255,.62);
+  --glass-2:rgba(255,255,255,.42);
+  --glass-brd:rgba(255,255,255,.85);
+  --glass-shadow:0 18px 45px -18px rgba(30,25,90,.45);
+  --line:rgba(21,27,59,.12);
+  --blob-a:#8A7CFF; --blob-b:#40E0D0; --blob-c:#FF7AC8; --blob-o:.55;
+  --shade:rgba(21,27,59,.28);
+  --ok:#0FA97C; --bad:#E23D5B;
+  --r-lg:26px; --r-md:18px; --r-sm:12px;
+}
+:root:not([data-theme="light"]){ }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg-0:#0B0E22; --bg-1:#141033;
+    --ink:#F2F4FF; --ink-2:#B9C0E6; --ink-3:#8A93C4;
+    --glass:rgba(30,34,72,.55);
+    --glass-2:rgba(30,34,72,.35);
+    --glass-brd:rgba(255,255,255,.18);
+    --glass-shadow:0 20px 55px -20px rgba(0,0,0,.85);
+    --line:rgba(255,255,255,.14);
+    --blob-a:#5B4BE0; --blob-b:#0E9BA8; --blob-c:#C0348E; --blob-o:.7;
+    --shade:rgba(0,0,0,.55);
+    --ok:#2BE7B0; --bad:#FF6B85;
+  }
+}
+:root[data-theme="dark"]{
+  --bg-0:#0B0E22; --bg-1:#141033;
+  --ink:#F2F4FF; --ink-2:#B9C0E6; --ink-3:#8A93C4;
+  --glass:rgba(30,34,72,.55);
+  --glass-2:rgba(30,34,72,.35);
+  --glass-brd:rgba(255,255,255,.18);
+  --glass-shadow:0 20px 55px -20px rgba(0,0,0,.85);
+  --line:rgba(255,255,255,.14);
+  --blob-a:#5B4BE0; --blob-b:#0E9BA8; --blob-c:#C0348E; --blob-o:.7;
+  --shade:rgba(0,0,0,.55);
+  --ok:#2BE7B0; --bad:#FF6B85;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--f-body);
+  background:var(--bg-0);
+  color:var(--ink);
+  min-height:100vh; min-height:100dvh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+button,input,textarea,select{font-family:inherit;color:inherit}
+
+/* ============ FONDO ANIMADO ============ */
+#bg{position:fixed;inset:0;z-index:-2;background:linear-gradient(160deg,var(--bg-0),var(--bg-1));overflow:hidden}
+#bg .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:var(--blob-o);will-change:transform}
+#bg .b1{width:52vmax;height:52vmax;background:var(--blob-a);top:-16vmax;left:-14vmax;animation:float1 26s ease-in-out infinite}
+#bg .b2{width:44vmax;height:44vmax;background:var(--blob-b);bottom:-16vmax;right:-12vmax;animation:float2 32s ease-in-out infinite}
+#bg .b3{width:36vmax;height:36vmax;background:var(--blob-c);top:38%;left:52%;animation:float3 24s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(8vmax,6vmax) scale(1.12)}}
+@keyframes float2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-9vmax,-5vmax) scale(1.15)}}
+@keyframes float3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-62%,-38%) scale(1.2)}}
+#grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.28;
+  background-image:radial-gradient(rgba(255,255,255,.5) .5px, transparent .5px);
+  background-size:3px 3px;mix-blend-mode:overlay}
+
+/* ============ LAYOUT ============ */
+.wrap{max-width:1080px;margin:0 auto;padding:16px 16px 90px;position:relative;z-index:1}
+.screen{display:none}
+.screen.active{display:block;animation:screenIn .42s cubic-bezier(.2,.9,.25,1.1) both}
+@keyframes screenIn{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
+
+/* ============ GLASS ============ */
+.glass{
+  background:var(--glass);
+  backdrop-filter:blur(18px) saturate(150%);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+  border:1px solid var(--glass-brd);
+  border-radius:var(--r-lg);
+  box-shadow:var(--glass-shadow);
+  position:relative;
+}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(140deg,rgba(255,255,255,.45),rgba(255,255,255,0) 42%);opacity:.6}
+.pad{padding:clamp(16px,3.4vw,30px)}
+
+/* ============ TOPBAR ============ */
+.topbar{display:flex;align-items:center;gap:10px;padding:14px 4px 6px;position:relative;z-index:3}
+.brandmini{display:flex;align-items:center;gap:9px;font-family:var(--f-display);font-weight:800;letter-spacing:.3px;font-size:15px}
+.brandmini .dot{width:26px;height:26px;border-radius:9px;background:linear-gradient(135deg,var(--magenta),var(--violet));box-shadow:0 6px 16px -6px var(--violet);display:grid;place-items:center;color:#fff;font-size:13px}
+.spacer{flex:1}
+.icon-btn{
+  width:44px;height:44px;border-radius:14px;display:grid;place-items:center;cursor:pointer;
+  background:var(--glass);border:1px solid var(--glass-brd);backdrop-filter:blur(12px);
+  box-shadow:0 6px 0 -2px var(--shade),0 12px 24px -14px rgba(0,0,0,.6);
+  transition:transform .12s,box-shadow .12s;font-size:19px;line-height:1;
+}
+.icon-btn:hover{transform:translateY(-1px)}
+.icon-btn:active{transform:translateY(3px);box-shadow:0 2px 0 -2px var(--shade)}
+
+/* ============ BOTONES 3D ============ */
+.btn{
+  --b1:var(--violet); --b2:#8E7BFF; --bsh:#4B3BC4;
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:16px 26px;border:none;border-radius:18px;cursor:pointer;
+  font-family:var(--f-display);font-weight:800;font-size:clamp(15px,2.1vw,18px);letter-spacing:.4px;
+  color:#fff;background:linear-gradient(180deg,var(--b2),var(--b1));
+  box-shadow:0 6px 0 0 var(--bsh), 0 14px 26px -12px var(--bsh);
+  transition:transform .09s ease, box-shadow .09s ease, filter .15s;
+  text-shadow:0 1px 0 rgba(0,0,0,.18);
+  -webkit-user-select:none;user-select:none;
+}
+.btn::before{content:"";position:absolute;inset:2px 2px 50% 2px;border-radius:16px 16px 22px 22px;background:linear-gradient(180deg,rgba(255,255,255,.32),rgba(255,255,255,0));pointer-events:none}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(6px);box-shadow:0 0 0 0 var(--bsh),0 6px 14px -10px var(--bsh)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.wide{width:100%}
+.btn.lg{padding:20px 30px;font-size:clamp(17px,2.6vw,22px);border-radius:22px}
+.btn.sm{padding:11px 16px;font-size:14px;border-radius:14px;box-shadow:0 4px 0 0 var(--bsh),0 10px 18px -12px var(--bsh)}
+.btn.sm:active{transform:translateY(4px)}
+.btn.ghost{--b1:transparent;--b2:transparent;--bsh:transparent;color:var(--ink);background:var(--glass-2);border:1px solid var(--glass-brd);box-shadow:0 4px 0 -1px var(--shade)}
+.btn.ghost:active{transform:translateY(4px);box-shadow:none}
+.btn.pink{--b1:#F5288F;--b2:#FF5FB0;--bsh:#B01268}
+.btn.cyan{--b1:#00A8E8;--b2:#3FD0FF;--bsh:#00688F}
+.btn.green{--b1:#04B487;--b2:#2BE0AC;--bsh:#027457}
+.btn.amber{--b1:#F59300;--b2:#FFC24D;--bsh:#A45F00}
+.btn.red{--b1:#E23D5B;--b2:#FF6E86;--bsh:#93142E}
+.btn.slate{--b1:#4A5478;--b2:#6E799F;--bsh:#2A3050}
+
+/* ============ HOME ============ */
+.hero{text-align:center;padding:clamp(14px,4vw,34px) 8px 8px}
+.hero h1{
+  font-family:var(--f-display);font-weight:800;margin:.1em 0 .06em;
+  font-size:clamp(38px,10.5vw,84px);line-height:.95;letter-spacing:-1px;
+  background:linear-gradient(100deg,#FF3CAC,#7A5CFF 38%,#00C6FB 70%,#06D6A0);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  background-size:220% auto;animation:shine 7s linear infinite;
+  filter:drop-shadow(0 8px 18px rgba(120,60,255,.28));
+}
+@keyframes shine{to{background-position:220% center}}
+.hero .kicker{display:inline-block;font-weight:800;letter-spacing:2.4px;text-transform:uppercase;
+  font-size:clamp(10px,2.4vw,13px);color:var(--ink-2);
+  background:var(--glass-2);border:1px solid var(--glass-brd);padding:7px 14px;border-radius:999px}
+.hero p.sub{color:var(--ink-2);font-weight:600;font-size:clamp(14px,2.6vw,18px);max-width:640px;margin:10px auto 0}
+
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px;margin-top:26px}
+.mode{
+  border-radius:var(--r-lg);padding:22px 20px 20px;cursor:pointer;position:relative;overflow:hidden;
+  border:1px solid var(--glass-brd);background:var(--glass);backdrop-filter:blur(18px) saturate(150%);
+  box-shadow:var(--glass-shadow);
+  transition:transform .18s cubic-bezier(.2,.9,.25,1.2),box-shadow .18s;
+  text-align:left;
+}
+.mode:hover{transform:translateY(-6px) rotate(-.4deg)}
+.mode:active{transform:translateY(-1px) scale(.99)}
+.mode .glow{position:absolute;inset:-40% -30% auto -30%;height:180px;filter:blur(46px);opacity:.75;transition:opacity .2s}
+.mode:hover .glow{opacity:1}
+.mode .ico{width:62px;height:62px;border-radius:20px;display:grid;place-items:center;font-size:30px;
+  box-shadow:0 10px 24px -12px rgba(0,0,0,.7);position:relative;color:#fff}
+.mode h3{font-family:var(--f-display);font-weight:800;font-size:23px;margin:14px 0 6px;position:relative}
+.mode p{margin:0;color:var(--ink-2);font-size:14.5px;font-weight:600;line-height:1.5;position:relative}
+.mode .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;position:relative}
+.tag{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:var(--glass-2);border:1px solid var(--line);color:var(--ink-2)}
+
+/* ============ TRIVIA ============ */
+.hud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;
+  font-weight:800;font-size:13px;letter-spacing:.3px;color:#fff;box-shadow:0 8px 18px -10px rgba(0,0,0,.7)}
+.chip.neutral{background:var(--glass);color:var(--ink);border:1px solid var(--glass-brd);box-shadow:none}
+
+.timerwrap{height:16px;border-radius:999px;background:var(--glass-2);border:1px solid var(--glass-brd);overflow:hidden;position:relative;box-shadow:inset 0 2px 6px rgba(0,0,0,.18)}
+#timerbar{height:100%;width:100%;border-radius:999px;transition:background-color .3s;
+  background:linear-gradient(90deg,#0FBF8F,#06D6A0);box-shadow:0 0 18px rgba(6,214,160,.55)}
+#timerbar.warn{background:linear-gradient(90deg,#F5A623,#FFD166);box-shadow:0 0 18px rgba(255,190,60,.6)}
+#timerbar.danger{background:linear-gradient(90deg,#E23D5B,#FF6E86);box-shadow:0 0 22px rgba(255,60,90,.75);animation:pulseBar .55s ease-in-out infinite}
+@keyframes pulseBar{0%,100%{opacity:1}50%{opacity:.42}}
+.timernum{font-family:var(--f-display);font-weight:800;font-size:20px;min-width:44px;text-align:center}
+.timernum.danger{color:var(--bad);animation:pulseBar .55s ease-in-out infinite}
+
+.qcard{margin-top:14px}
+.qcat{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;padding:6px 13px;border-radius:999px;color:#fff}
+.qtext{font-family:var(--f-display);font-weight:700;font-size:clamp(20px,4.1vw,32px);line-height:1.24;margin:14px 0 4px}
+.qart{margin:14px 0 6px;display:flex;justify-content:center}
+.qart svg{width:100%;max-width:580px;height:auto}
+
+.opts{display:grid;gap:11px;margin-top:16px}
+.opt{
+  display:flex;align-items:center;gap:14px;text-align:left;width:100%;cursor:pointer;
+  padding:15px 16px;border-radius:18px;border:2px solid var(--glass-brd);
+  background:var(--glass);backdrop-filter:blur(10px);
+  font-weight:700;font-size:clamp(14.5px,2.5vw,17px);line-height:1.35;color:var(--ink);
+  box-shadow:0 5px 0 -1px var(--shade),0 14px 24px -18px rgba(0,0,0,.7);
+  transition:transform .1s,box-shadow .1s,border-color .18s,background .18s;
+}
+.opt:hover:not(:disabled){transform:translateY(-2px)}
+.opt:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 -1px var(--shade)}
+.opt .k{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+  font-family:var(--f-display);font-weight:800;font-size:16px;color:#fff;background:linear-gradient(180deg,#8E7BFF,#6C5CE7);box-shadow:0 4px 10px -5px #4B3BC4}
+.opt.correct{border-color:var(--ok);background:linear-gradient(90deg,rgba(6,214,160,.28),var(--glass));animation:popIn .35s cubic-bezier(.2,1.4,.4,1)}
+.opt.correct .k{background:linear-gradient(180deg,#2BE0AC,#04B487)}
+.opt.wrong{border-color:var(--bad);background:linear-gradient(90deg,rgba(255,77,109,.24),var(--glass))}
+.opt.wrong .k{background:linear-gradient(180deg,#FF6E86,#E23D5B)}
+.opt.dim{opacity:.44;filter:saturate(.5)}
+@keyframes popIn{0%{transform:scale(.96)}55%{transform:scale(1.035)}100%{transform:scale(1)}}
+
+.feedback{margin-top:14px;border-radius:22px;padding:18px;border:1px solid var(--glass-brd);
+  background:var(--glass);backdrop-filter:blur(14px);animation:screenIn .35s both}
+.feedback .fhead{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:20px}
+.feedback.ok .fhead{color:var(--ok)}
+.feedback.bad .fhead{color:var(--bad)}
+.feedback p{margin:9px 0 0;color:var(--ink-2);font-weight:600;line-height:1.55;font-size:15.5px}
+.feedback .dato{margin-top:12px;padding:11px 14px;border-radius:14px;background:var(--glass-2);border:1px dashed var(--line);font-size:14px;font-weight:700;color:var(--ink-2)}
+.feedback .fart{margin-top:14px;display:flex;justify-content:center}
+.feedback .fart svg{width:100%;max-width:460px;height:auto}
+
+@keyframes shakeit{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(5px)}30%,50%,70%{transform:translateX(-9px)}40%,60%{transform:translateX(9px)}}
+.shake{animation:shakeit .55s cubic-bezier(.36,.07,.19,.97) both}
+#flash{position:fixed;inset:0;pointer-events:none;z-index:60;opacity:0;transition:opacity .18s;
+  box-shadow:inset 0 0 0 10px rgba(255,60,90,.9),inset 0 0 120px 20px rgba(255,60,90,.55)}
+#flash.on{opacity:1}
+#flash.good{box-shadow:inset 0 0 0 10px rgba(6,214,160,.85),inset 0 0 120px 20px rgba(6,214,160,.45)}
+
+/* ============ RESULTADO ============ */
+.bigscore{font-family:var(--f-display);font-weight:800;font-size:clamp(56px,17vw,120px);line-height:1;
+  background:linear-gradient(100deg,#FF3CAC,#7A5CFF 45%,#00C6FB);-webkit-background-clip:text;background-clip:text;color:transparent}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:18px}
+.stat{border-radius:18px;padding:14px;text-align:center;background:var(--glass-2);border:1px solid var(--glass-brd)}
+.stat b{display:block;font-family:var(--f-display);font-size:26px;font-weight:800}
+.stat span{font-size:11.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink-3)}
+
+.codebox{margin-top:18px;border-radius:20px;padding:16px;background:linear-gradient(135deg,rgba(108,92,231,.18),rgba(0,198,251,.14));border:1px dashed var(--violet)}
+.codebox .lbl{font-size:11.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-3)}
+.codeval{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:700;
+  font-size:clamp(13px,3.1vw,17px);word-break:break-all;margin:8px 0 12px;line-height:1.45;color:var(--ink)}
+
+.reviewlist{display:grid;gap:9px;margin-top:8px}
+.review{display:flex;gap:11px;align-items:flex-start;padding:12px 14px;border-radius:15px;background:var(--glass-2);border:1px solid var(--line);font-size:14.5px;font-weight:600;line-height:1.45}
+.review .rk{flex:none;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;font-weight:800;color:#fff;font-size:13px}
+.review.ok .rk{background:var(--ok)} .review.bad .rk{background:var(--bad)}
+
+/* ============ PERSONALIDAD ============ */
+.pcard{border-radius:28px;overflow:hidden;position:relative;border:1px solid var(--glass-brd);box-shadow:var(--glass-shadow)}
+.pcard .top{padding:24px 22px 16px;color:#fff;position:relative;overflow:hidden}
+.pcard .top .rays{position:absolute;inset:-60% -20%;background:conic-gradient(from 0deg,rgba(255,255,255,.22) 0 10deg,transparent 10deg 30deg);animation:spin 26s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pcard .emoji{font-size:62px;line-height:1;position:relative;filter:drop-shadow(0 8px 14px rgba(0,0,0,.35))}
+.pcard h2{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,7vw,44px);margin:6px 0 2px;position:relative;text-shadow:0 3px 12px rgba(0,0,0,.28)}
+.pcard .alias{font-weight:800;letter-spacing:2px;text-transform:uppercase;font-size:12px;opacity:.92;position:relative}
+.pcard .body{padding:20px 22px 22px;background:var(--glass);backdrop-filter:blur(16px)}
+.bar{margin-bottom:11px}
+.bar .lab{display:flex;justify-content:space-between;font-weight:800;font-size:12.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2);margin-bottom:5px}
+.bar .track{height:13px;border-radius:999px;background:var(--glass-2);border:1px solid var(--line);overflow:hidden}
+.bar .fill{height:100%;border-radius:999px;width:0;transition:width 1.1s cubic-bezier(.2,.9,.25,1)}
+
+/* ============ DOCENTE ============ */
+textarea.paste{width:100%;min-height:150px;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:14px;line-height:1.6;background:var(--glass-2);border:1px solid var(--glass-brd);color:var(--ink);resize:vertical}
+textarea.paste:focus{outline:2px solid var(--violet);outline-offset:2px}
+input.nm{width:100%;padding:15px 16px;border-radius:16px;font-size:17px;font-weight:700;
+  background:var(--glass-2);border:1px solid var(--glass-brd);color:var(--ink)}
+input.nm:focus{outline:2px solid var(--violet);outline-offset:2px}
+
+.podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:end;margin:22px auto 10px;max-width:660px}
+.pod{border-radius:20px 20px 8px 8px;padding:12px 8px;text-align:center;position:relative;color:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;
+  box-shadow:0 14px 34px -16px rgba(0,0,0,.75);animation:riseUp .7s cubic-bezier(.2,1.2,.3,1) both}
+@keyframes riseUp{from{transform:translateY(40px) scaleY(.6);opacity:0}to{transform:none;opacity:1}}
+.pod .cup{line-height:0;filter:drop-shadow(0 5px 8px rgba(0,0,0,.45))}
+.pod .cup svg{display:block}
+.pod .who{font-family:var(--f-display);font-weight:800;font-size:15.5px;line-height:1.15;word-break:break-word;text-shadow:0 2px 6px rgba(0,0,0,.35)}
+.pod .sc{font-size:12px;font-weight:800;opacity:.95}
+.pod .nota{margin-top:4px;display:inline-block;background:rgba(255,255,255,.95);color:#151B3B;border-radius:999px;padding:3px 12px;font-family:var(--f-display);font-weight:800;font-size:16px}
+.pod.p1{background:linear-gradient(180deg,#FFD84D,#F0A400);min-height:176px;animation-delay:.25s}
+.pod.p2{background:linear-gradient(180deg,#D8E0EE,#9AA6BF);min-height:146px;animation-delay:.05s}
+.pod.p3{background:linear-gradient(180deg,#E9A163,#B96C2E);min-height:128px;animation-delay:.15s}
+.pod.p1::before{content:"";position:absolute;inset:-3px;border-radius:22px 22px 10px 10px;background:linear-gradient(120deg,#fff8,#fff0,#fff8);opacity:.6;animation:shineBox 3s linear infinite;pointer-events:none}
+@keyframes shineBox{0%{transform:translateX(-8%)}100%{transform:translateX(8%)}}
+
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.rank{width:100%;min-width:430px;border-collapse:collapse;margin-top:8px;font-size:14.5px}
+table.rank th{text-align:left;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-3);padding:8px 9px;border-bottom:1px solid var(--line)}
+table.rank td{padding:11px 9px;border-bottom:1px solid var(--line);font-weight:700}
+table.rank tr.top td{background:linear-gradient(90deg,rgba(255,216,77,.16),transparent)}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:800}
+.badge.g{background:rgba(6,214,160,.2);color:var(--ok)}
+.badge.r{background:rgba(255,77,109,.2);color:var(--bad)}
+.nota-big{font-family:var(--f-display);font-weight:800;font-size:19px}
+
+/* ============ MISC ============ */
+.h2{font-family:var(--f-display);font-weight:800;font-size:clamp(23px,4.6vw,34px);margin:0 0 6px;line-height:1.15}
+.muted{color:var(--ink-2);font-weight:600;line-height:1.55}
+.small{font-size:13px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row.end{justify-content:flex-end}
+.mt{margin-top:16px}.mt2{margin-top:26px}
+.center{text-align:center}
+.divider{height:1px;background:var(--line);margin:18px 0}
+.progressdots{display:flex;gap:5px;flex-wrap:wrap}
+.pd{width:100%;max-width:22px;height:6px;border-radius:99px;background:var(--glass-2);border:1px solid var(--line);flex:1}
+.pd.ok{background:var(--ok);border-color:transparent}
+.pd.bad{background:var(--bad);border-color:transparent}
+.pd.now{background:var(--violet);border-color:transparent;animation:pulseBar 1s infinite}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:70}
+.footer{text-align:center;color:var(--ink-3);font-size:12.5px;font-weight:700;padding:26px 10px 6px;line-height:1.7}
+.modal{position:fixed;inset:0;z-index:80;display:none;place-items:center;padding:18px;background:rgba(6,8,24,.72);backdrop-filter:blur(6px)}
+.modal.open{display:grid;animation:screenIn .3s both}
+.modal .sheet{max-width:420px;width:100%;max-height:88vh;overflow:auto;border-radius:24px;padding:18px}
+.modal img{width:100%;border-radius:16px;display:block;box-shadow:0 20px 50px -20px #000}
+@media (max-width:520px){
+  .wrap{padding:12px 12px 80px}
+  .pad{padding:16px}
+  .podium{gap:7px}
+  .pod .who{font-size:13px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+
+/* ============ LABORATORIO DE COMPUESTOS ============ */
+.escenawrap{padding:8px;margin-top:12px;overflow:hidden}
+#labCanvas{display:block;width:100%;border-radius:18px;
+  background:radial-gradient(120% 90% at 50% 10%,rgba(255,255,255,.30),rgba(255,255,255,0));}
+:root[data-theme="dark"] #labCanvas{background:radial-gradient(120% 90% at 50% 10%,rgba(255,255,255,.07),rgba(255,255,255,0))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #labCanvas{background:radial-gradient(120% 90% at 50% 10%,rgba(255,255,255,.07),rgba(255,255,255,0))}}
+
+.faserow{font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--ink-3);margin:0 2px 6px}
+#labBar{height:100%;width:100%;border-radius:999px;transition:background-color .3s;
+  background:linear-gradient(90deg,#0FBF8F,#06D6A0);box-shadow:0 0 18px rgba(6,214,160,.55)}
+#labBar.warn{background:linear-gradient(90deg,#F5A623,#FFD166);box-shadow:0 0 18px rgba(255,190,60,.6)}
+#labBar.danger{background:linear-gradient(90deg,#E23D5B,#FF6E86);box-shadow:0 0 22px rgba(255,60,90,.75);
+  animation:pulseBar .55s ease-in-out infinite}
+.resultado{border-radius:22px;padding:18px;border:2px solid;animation:screenIn .4s both}
+.resultado .rtit{font-family:var(--f-display);font-weight:800;font-size:clamp(21px,4.6vw,30px);line-height:1.15;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.resultado .estrellas{margin-left:auto;font-size:20px;letter-spacing:2px}
+.resultado p{margin:10px 0 0;color:var(--ink-2);font-weight:600;line-height:1.55;font-size:15.5px}
+.resultado.r-perfecta{border-color:var(--ok);background:linear-gradient(135deg,rgba(6,214,160,.22),var(--glass))}
+.resultado.r-aceptable{border-color:#F5A623;background:linear-gradient(135deg,rgba(255,190,60,.20),var(--glass))}
+.resultado.r-otro{border-color:#7A5CFF;background:linear-gradient(135deg,rgba(122,92,255,.20),var(--glass))}
+.resultado.r-fria{border-color:#00A8E8;background:linear-gradient(135deg,rgba(0,198,251,.20),var(--glass))}
+.resultado.r-quemada{border-color:var(--bad);background:linear-gradient(135deg,rgba(255,77,109,.22),var(--glass))}
+.resultado.r-sintiempo{border-color:var(--ink-3);background:var(--glass)}
+.matbox{margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--glass-2);border:1px dashed var(--line)}
+.matbox b{display:block;font-family:var(--f-display);font-size:17px;margin-bottom:3px}
+ingprev-placeholder{}
+.ingprev{display:grid;gap:8px}
+.ipill{display:grid;grid-template-columns:auto 1fr;gap:4px 9px;align-items:center;
+  padding:10px 13px;border-radius:14px;background:var(--glass-2);border:1px solid var(--line);border-left:5px solid var(--ic)}
+.ipill .idot{width:11px;height:11px;border-radius:50%;background:var(--ic)}
+.ipill b{font-size:15px}
+.ipill span:last-child{grid-column:2;color:var(--ink-2);font-size:13px;font-weight:600;line-height:1.4}
+.labtit{font-size:11.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:6px}
+.restwrap{display:flex;justify-content:center}
+.restchip{font-family:var(--f-display);font-weight:800;font-size:16px;padding:9px 20px;border-radius:999px;
+  background:var(--glass-2);border:1px dashed var(--line);color:var(--ink-2);transition:.25s}
+.restchip.full{background:linear-gradient(135deg,#04B487,#2BE0AC);color:#fff;border:1px solid transparent;
+  box-shadow:0 8px 20px -10px #04B487;animation:popIn .35s cubic-bezier(.2,1.4,.4,1)}
+
+.ingrs{display:grid;gap:11px}
+.ingr{border-radius:18px;padding:13px 14px;background:var(--glass-2);border:1px solid var(--line);
+  border-left:5px solid var(--ic)}
+.ihead{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:800}
+.ihead .idot{width:12px;height:12px;border-radius:50%;background:var(--ic);flex:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--ic) 28%,transparent)}
+.ihead b{flex:1;line-height:1.2}
+.ipct{font-family:var(--f-display);font-weight:800;font-size:19px;min-width:56px;text-align:right;
+  font-variant-numeric:tabular-nums;color:var(--ic)}
+.irol{color:var(--ink-2);font-size:13px;font-weight:600;line-height:1.4;margin:4px 0 9px}
+.irow{display:flex;align-items:center;gap:10px}
+.stepb{width:40px;height:40px;flex:none;border-radius:13px;border:none;cursor:pointer;
+  font-family:var(--f-display);font-weight:800;font-size:22px;line-height:1;color:#fff;
+  background:linear-gradient(180deg,var(--ic),color-mix(in srgb,var(--ic) 70%,#000));
+  box-shadow:0 4px 0 -1px rgba(0,0,0,.35);transition:transform .08s,box-shadow .08s}
+.stepb:active{transform:translateY(4px);box-shadow:none}
+.islider{flex:1;-webkit-appearance:none;appearance:none;height:12px;border-radius:99px;
+  background:linear-gradient(90deg,var(--ic) calc(var(--p,0)*1%),var(--glass-2) 0);
+  border:1px solid var(--line);cursor:pointer}
+.islider::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;
+  background:#fff;border:4px solid var(--ic);box-shadow:0 3px 8px rgba(0,0,0,.35);cursor:grab}
+.islider::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;
+  border:4px solid var(--ic);box-shadow:0 3px 8px rgba(0,0,0,.35);cursor:grab}
+.islider:focus-visible{outline:2px solid var(--violet);outline-offset:3px}
+
+.lab-bars-t{font-size:11.5px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+.labbar .track{position:relative;overflow:visible}
+.labbar .fill{transition:width .25s ease,background .25s}
+.labbar .tgt{position:absolute;top:-7px;width:0;height:0;margin-left:-6px;
+  border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--ink-2);
+  transition:left .3s;z-index:2}
+.labbar .track{overflow:visible;border-radius:99px}
+.labbar .track>.fill{border-radius:99px}
+
+.temps{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.tempb{position:relative;border-radius:20px;cursor:pointer;padding:16px 8px 14px;
+  background:var(--glass);border:2px solid var(--glass-brd);color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  box-shadow:0 5px 0 -1px var(--shade),0 14px 24px -18px rgba(0,0,0,.7);
+  transition:transform .1s,box-shadow .1s,border-color .2s}
+.tempb:hover:not(:disabled){transform:translateY(-3px);border-color:var(--amber)}
+.tempb:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 -1px var(--shade)}
+.tempb:disabled{opacity:.45}
+.tempb .tv{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1;font-variant-numeric:tabular-nums}
+.tempb .tv small{font-size:.5em;opacity:.7;margin-left:2px}
+.tempb .tb{width:16px;height:64px;border-radius:99px;background:var(--glass-2);border:1px solid var(--line);
+  display:flex;align-items:flex-end;overflow:hidden}
+.tempb .tf{width:100%;border-radius:99px;background:linear-gradient(180deg,#FF4D6D,#FFB020 55%,#00C6FB)}
+.labbrief .dato{margin-top:12px;padding:11px 14px;border-radius:14px;background:var(--glass-2);
+  border:1px dashed var(--line);font-size:14px;font-weight:700;color:var(--ink-2)}
+@media (max-width:420px){
+  .ihead{flex-wrap:wrap}
+  .temps{gap:7px}
+  .stepb{width:36px;height:36px;font-size:19px}
+}
+
+/* ============ PANEL EN VIVO Y SALA ============ */
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tabb{padding:11px 18px;border-radius:14px;border:1px solid var(--glass-brd);cursor:pointer;
+  background:var(--glass-2);color:var(--ink-2);font-family:var(--f-display);font-weight:800;font-size:15px;
+  transition:.18s}
+.tabb.active{background:linear-gradient(180deg,#8E7BFF,#6C5CE7);color:#fff;border-color:transparent;
+  box-shadow:0 5px 0 -1px #4B3BC4}
+.livedot{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:13.5px;color:var(--ink-2)}
+.livedot::before{content:"";width:11px;height:11px;border-radius:50%;background:var(--ink-3)}
+.livedot.on::before{background:var(--ok);box-shadow:0 0 0 0 rgba(6,214,160,.7);animation:latido 1.6s infinite}
+.livedot.off::before{background:var(--bad)}
+@keyframes latido{0%{box-shadow:0 0 0 0 rgba(6,214,160,.65)}70%{box-shadow:0 0 0 12px rgba(6,214,160,0)}100%{box-shadow:0 0 0 0 rgba(6,214,160,0)}}
+.livenuevo{margin-top:10px;font-family:var(--f-display);font-weight:800;font-size:18px;color:var(--ok);
+  opacity:0;transform:translateY(-6px);transition:.3s;height:0;overflow:hidden}
+.livenuevo.show{opacity:1;transform:none;height:auto;margin-top:12px}
+.pasos{margin:14px 0 0;padding-left:22px;color:var(--ink-2);font-weight:600;line-height:1.7;font-size:14.5px}
+.pasos li{margin-bottom:7px}
+.pasos code{background:var(--glass-2);padding:2px 6px;border-radius:6px;font-size:13px}
+.lbl2{display:block;font-size:11.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--ink-3);margin:14px 0 6px}
+.envio{display:inline-block;margin-top:10px;padding:8px 15px;border-radius:999px;font-weight:800;font-size:13.5px}
+.envio.ok{background:rgba(6,214,160,.2);color:var(--ok)}
+.envio.bad{background:rgba(255,77,109,.18);color:var(--bad)}
+.envio.wait{background:var(--glass-2);color:var(--ink-2)}
+.envio.off{background:var(--glass-2);color:var(--ink-2)}
+
+.sala{position:fixed;inset:0;z-index:90;display:none;flex-direction:column;padding:18px 22px 22px;
+  background:linear-gradient(160deg,var(--bg-0),var(--bg-1))}
+.sala.open{display:flex}
+.salabar{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.salamarca{font-family:var(--f-display);font-weight:800;font-size:clamp(16px,2.4vw,26px);letter-spacing:1px;
+  background:linear-gradient(100deg,#FF3CAC,#7A5CFF 50%,#00C6FB);-webkit-background-clip:text;background-clip:text;color:transparent}
+.salagrid{flex:1;display:grid;grid-template-columns:minmax(280px,38%) 1fr;gap:20px;min-height:0}
+.salaqr{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;
+  background:var(--glass);border:1px solid var(--glass-brd);border-radius:26px;padding:22px;box-shadow:var(--glass-shadow)}
+.salatit{font-family:var(--f-display);font-weight:800;font-size:clamp(20px,2.6vw,32px)}
+.qrbox{width:min(46vh,100%);max-width:460px;background:#fff;border-radius:20px;padding:14px;
+  box-shadow:0 20px 50px -20px rgba(0,0,0,.55)}
+.qrbox svg{display:block;width:100%;height:auto}
+.salaurl{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;font-size:clamp(12px,1.5vw,17px);
+  word-break:break-all;color:var(--ink-2);max-width:100%}
+.salarank{overflow:auto;min-height:0;padding-right:4px}
+.salarank .glass{margin-top:0!important;margin-bottom:14px}
+.salarank .h2{font-size:clamp(20px,2.2vw,30px)}
+.salarank table.rank{font-size:clamp(15px,1.6vw,22px)}
+.salarank .pod .who{font-size:clamp(15px,1.6vw,22px)}
+.salarank .nota-big{font-size:clamp(19px,2vw,28px)}
+@media (max-width:820px){
+  .salagrid{grid-template-columns:1fr;overflow:auto}
+  .qrbox{width:min(58vw,320px)}
+}
+</style>
+</head>
+<body>
+<div id="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div id="grain"></div>
+<div id="flash"></div>
+<canvas id="confetti"></canvas>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brandmini"><span class="dot">◇</span><span>Polímeros en Juego</span></div>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="btnHome" title="Inicio" aria-label="Inicio">⌂</button>
+    <button class="icon-btn" id="btnSound" title="Sonido" aria-label="Sonido">🔊</button>
+    <button class="icon-btn" id="btnTheme" title="Tema" aria-label="Cambiar tema">🌙</button>
+  </div>
+
+  <!-- ============ HOME ============ -->
+  <section class="screen active" id="s-home">
+    <div class="hero">
+      <span class="kicker">UTN FRTDF · Conocimiento de los Materiales</span>
+      <h1>POLÍMEROS<br>EN JUEGO</h1>
+      <p class="sub">Trivia contrarreloj, test de personalidad y ranking en vivo. Todo desde el celular, todo en pantalla grande.</p>
+    </div>
+
+    <div class="modes">
+      <div class="mode" data-go="setup" role="button" tabindex="0">
+        <div class="glow" style="background:radial-gradient(circle,#FF3CAC,transparent 65%)"></div>
+        <div class="ico" style="background:linear-gradient(135deg,#FF5FB0,#B01268)">⚡</div>
+        <h3>Trivia de la Cátedra</h3>
+        <p>15 preguntas, 20 segundos cada una. Explicación técnica ilustrada después de cada respuesta y código verificable al terminar.</p>
+        <div class="tags"><span class="tag">Contrarreloj</span><span class="tag">6 categorías</span><span class="tag">Con código</span></div>
+      </div>
+      <div class="mode" data-go="quizintro" role="button" tabindex="0">
+        <div class="glow" style="background:radial-gradient(circle,#00C6FB,transparent 65%)"></div>
+        <div class="ico" style="background:linear-gradient(135deg,#3FD0FF,#00688F)">🧬</div>
+        <h3>¿Qué Polímero Sos?</h3>
+        <p>7 preguntas rápidas y una carta de personaje con tus stats: Tenacidad, Térmica, Flexibilidad y Química. Lista para tu historia.</p>
+        <div class="tags"><span class="tag">7 preguntas</span><span class="tag">Carta PNG</span><span class="tag">Compartible</span></div>
+      </div>
+      <div class="mode" data-go="labintro" role="button" tabindex="0">
+        <div class="glow" style="background:radial-gradient(circle,#06D6A0,transparent 65%)"></div>
+        <div class="ico" style="background:linear-gradient(135deg,#2BE0AC,#04785C)">⚗️</div>
+        <h3>Laboratorio de Compuestos</h3>
+        <p>El juego. Mezclá los polímeros en la proporción justa y elegí la temperatura de proceso. Te pasás y la pieza se carboniza.</p>
+        <div class="tags"><span class="tag">3 niveles</span><span class="tag">3 vidas</span><span class="tag">Arcade</span></div>
+      </div>
+      <div class="mode" data-go="doc" role="button" tabindex="0">
+        <div class="glow" style="background:radial-gradient(circle,#FFB020,transparent 65%)"></div>
+        <div class="ico" style="background:linear-gradient(135deg,#FFC24D,#A45F00)">🏆</div>
+        <h3>Panel del Docente</h3>
+        <p>Pegá los códigos de los alumnos, validalos y armá el podio en vivo con las notas asignadas automáticamente.</p>
+        <div class="tags"><span class="tag">Ranking</span><span class="tag">Notas 10 a 6</span><span class="tag">Podio</span></div>
+      </div>
+    </div>
+
+    <div class="glass pad mt2">
+      <div class="h2">Cómo se juega en el aula</div>
+      <p class="muted">Cada alumno abre el link en su celular, juega la <b>Trivia</b> y al terminar obtiene un código como <code>PM-eyJuIjoi…-6VD8</code> que guarda su nombre, sus aciertos y su tiempo total. El código lleva una firma de verificación: si alguien le cambia una letra, el Panel del Docente lo marca como <b>inválido</b>. El docente pega todos los códigos, ordena en vivo y el sistema asigna las notas: 1° 10, 2° 9, 3° 8, 4° 7, 5° 6.</p>
+    </div>
+
+    <div class="footer">Trabajo práctico grupal · Ciencia / Conocimiento de los Materiales · 2° año Ing. Electromecánica<br>Funciona sin internet una vez abierto. Ideal para proyectar.</div>
+  </section>
+
+  <!-- ============ TRIVIA: SETUP ============ -->
+  <section class="screen" id="s-setup">
+    <div class="glass pad">
+      <div class="h2">Trivia de la Cátedra</div>
+      <p class="muted">Escribí tu nombre y apellido como los espera el profe. Va dentro del código final, así que no lo cambies después.</p>
+      <div class="mt">
+        <input class="nm" id="inpName" placeholder="Nombre y Apellido" maxlength="34" autocomplete="name">
+      </div>
+      <div class="statgrid mt">
+        <div class="stat"><b>15</b><span>Preguntas</span></div>
+        <div class="stat"><b>20s</b><span>Por pregunta</span></div>
+        <div class="stat"><b>6</b><span>Categorías</span></div>
+      </div>
+      <div class="mt">
+        <div class="row small muted" style="gap:6px">
+          <span class="tag">Mecánicas</span><span class="tag">Térmicas</span><span class="tag">Químicas</span>
+          <span class="tag">Eléctricas</span><span class="tag">Electrotecnia</span><span class="tag">Procesamiento</span>
+        </div>
+      </div>
+      <div class="row mt2">
+        <button class="btn ghost sm" data-go="home">← Volver</button>
+        <div class="spacer"></div>
+        <button class="btn lg pink" id="btnStartTrivia">EMPEZAR ⚡</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRIVIA: JUEGO ============ -->
+  <section class="screen" id="s-trivia">
+    <div class="hud">
+      <span class="chip" id="chipCat">—</span>
+      <span class="chip neutral" id="chipNum">1 / 15</span>
+      <span class="chip neutral" id="chipScore">0 pts</span>
+      <div class="spacer"></div>
+      <span class="timernum" id="timerNum">20</span>
+    </div>
+    <div class="timerwrap"><div id="timerbar"></div></div>
+    <div class="progressdots mt" id="dots"></div>
+
+    <div class="glass pad qcard" id="qcard">
+      <span class="qcat" id="qcat">CATEGORÍA</span>
+      <div class="qtext" id="qtext">Pregunta</div>
+      <div class="qart" id="qart"></div>
+      <div class="opts" id="opts"></div>
+      <div id="fbslot"></div>
+    </div>
+  </section>
+
+  <!-- ============ TRIVIA: RESULTADO ============ -->
+  <section class="screen" id="s-result">
+    <div class="glass pad center">
+      <div class="kicker" style="letter-spacing:2px;font-weight:800;font-size:12px;color:var(--ink-3)">RESULTADO FINAL</div>
+      <div class="bigscore" id="resScore">0/15</div>
+      <div class="h2" id="resTitle">¡Bien ahí!</div>
+      <p class="muted" id="resSub">—</p>
+      <div class="statgrid">
+        <div class="stat"><b id="resTime">0:00</b><span>Tiempo total</span></div>
+        <div class="stat"><b id="resPts">0</b><span>Puntaje</span></div>
+        <div class="stat"><b id="resAvg">0.0s</b><span>Promedio</span></div>
+        <div class="stat"><b id="resStreak">0</b><span>Mejor racha</span></div>
+      </div>
+
+      <div class="codebox">
+        <div class="lbl">Tu código para el profe</div>
+        <div class="codeval" id="resCode">—</div>
+        <div class="row" style="justify-content:center">
+          <button class="btn sm green" id="btnCopy">📋 Copiar código</button>
+          <button class="btn sm cyan" id="btnShareCode">📤 Compartir</button>
+        </div>
+        <div id="envioTriv"></div>
+      </div>
+    </div>
+
+    <div class="glass pad mt">
+      <div class="h2">Repaso pregunta por pregunta</div>
+      <div class="reviewlist" id="reviewList"></div>
+    </div>
+
+    <div class="row mt end">
+      <button class="btn ghost sm" data-go="home">⌂ Inicio</button>
+      <button class="btn sm amber" id="btnRetry">↻ Jugar de nuevo</button>
+      <button class="btn sm cyan" data-go="quizintro">🧬 ¿Qué polímero sos?</button>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ PERSONALIDAD ============ -->
+  <section class="screen" id="s-quizintro">
+    <div class="glass pad center">
+      <div style="font-size:56px">🧬</div>
+      <div class="h2">¿Qué Polímero Sos?</div>
+      <p class="muted">7 preguntas sin respuestas incorrectas. Al final vas a tener tu carta de personaje con stats reales del material que te tocó, lista para descargar y subir a la historia.</p>
+      <div class="mt"><input class="nm" id="inpName2" placeholder="Tu nombre (opcional, va en la carta)" maxlength="24"></div>
+      <div class="row mt2" style="justify-content:center">
+        <button class="btn ghost sm" data-go="home">← Volver</button>
+        <button class="btn lg cyan" id="btnStartQuiz">EMPEZAR 🧬</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="s-quiz">
+    <div class="hud">
+      <span class="chip neutral" id="qzNum">1 / 7</span>
+      <div class="spacer"></div>
+    </div>
+    <div class="timerwrap"><div id="qzbar" style="height:100%;width:14%;border-radius:999px;background:linear-gradient(90deg,#7A5CFF,#00C6FB);transition:width .4s"></div></div>
+    <div class="glass pad qcard">
+      <div class="qtext" id="qzText">Pregunta</div>
+      <div class="opts" id="qzOpts"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="s-quizres">
+    <div class="pcard" id="pcard">
+      <div class="top" id="pcardTop">
+        <div class="rays"></div>
+        <div class="emoji" id="pEmoji">🧪</div>
+        <div class="alias" id="pAlias">ALIAS</div>
+        <h2 id="pName">POLÍMERO</h2>
+        <div style="position:relative;font-weight:700;font-size:14px;opacity:.95" id="pFormula">—</div>
+      </div>
+      <div class="body">
+        <p class="muted" id="pDesc" style="margin-top:0"></p>
+        <div class="divider"></div>
+        <div id="pBars"></div>
+        <div class="divider"></div>
+        <p class="muted small" id="pFact"></p>
+      </div>
+    </div>
+    <div class="row mt" style="justify-content:center">
+      <button class="btn green" id="btnCard">📸 Generar carta</button>
+      <button class="btn ghost sm" id="btnRetryQuiz">↻ Repetir</button>
+      <button class="btn ghost sm" data-go="home">⌂ Inicio</button>
+    </div>
+    <div class="footer">Consejo: generá la carta, guardala y subila con el sticker de encuesta preguntando “¿qué polímero sos vos?”. Cada comentario suma 3 puntos.</div>
+  </section>
+
+  <!-- ============ DOCENTE ============ -->
+  <section class="screen" id="s-doc">
+    <div class="glass pad">
+      <div class="h2">Panel del Docente</div>
+      <div class="tabs mt">
+        <button class="tabb active" data-tab="vivo">📡 Ranking en vivo</button>
+        <button class="tabb" data-tab="cod">📋 Por códigos</button>
+      </div>
+    </div>
+
+    <div id="tab-vivo">
+      <div class="glass pad mt">
+        <div class="row" style="align-items:center">
+          <span class="livedot" id="liveEstado">Sin conectar</span>
+          <span class="chip neutral" id="liveCant">0 participantes</span>
+          <div class="spacer"></div>
+          <button class="btn sm cyan" id="btnSala">🔳 Proyectar QR</button>
+          <button class="btn sm ghost" id="btnLiveCfg" title="Configurar">⚙</button>
+        </div>
+        <div class="livenuevo" id="liveNuevo"></div>
+      </div>
+      <div id="liveBody"></div>
+    </div>
+
+    <div id="tab-cod" hidden>
+      <div class="glass pad mt">
+        <p class="muted">Pegá acá los códigos de los alumnos (uno por línea, o todos juntos: el sistema los detecta solo). Se verifica la firma de cada código y se ordena por aciertos y, a igualdad, por menor tiempo.</p>
+        <textarea class="paste mt" id="pasteBox" placeholder="PM-eyJuIjoiTHVpcyIsImEiOjEzfQ-6VD8&#10;PM-…-A1B2"></textarea>
+        <div class="row mt">
+          <button class="btn amber" id="btnRank">🏁 Calcular ranking</button>
+          <button class="btn ghost sm" id="btnDemo">Cargar ejemplo</button>
+          <button class="btn ghost sm" id="btnClear">Limpiar</button>
+        </div>
+      </div>
+      <div id="rankOut"></div>
+    </div>
+
+    <div class="row mt end"><button class="btn ghost sm" data-go="home">⌂ Inicio</button></div>
+  </section>
+
+  <!-- ============ LABORATORIO DE COMPUESTOS ============ -->
+  <section class="screen" id="s-labintro">
+    <div class="glass pad center">
+      <div style="font-size:56px">⚗️</div>
+      <div class="h2">Laboratorio de Compuestos</div>
+      <p class="muted">Sos el formulador de la planta. En cada nivel te encargan una pieza, tenés los ingredientes sobre la mesa y dos decisiones: <b>en qué proporción los mezclás</b> y <b>a qué temperatura los procesás</b>. Los mismos polímeros en otra proporción dan otro material. Y si te pasás de temperatura, se degrada.</p>
+      <div class="statgrid mt">
+        <div class="stat"><b>3</b><span>Niveles</span></div>
+        <div class="stat"><b>3</b><span>Vidas</span></div>
+        <div class="stat"><b>3→5</b><span>Ingredientes</span></div>
+      </div>
+      <div class="mt"><input class="nm" id="inpName3" placeholder="Nombre y Apellido" maxlength="34" autocomplete="name"></div>
+      <div class="row mt2" style="justify-content:center">
+        <button class="btn ghost sm" data-go="home">← Volver</button>
+        <button class="btn lg green" id="btnLabStart">ENTRAR A LA PLANTA ⚗️</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="s-lab">
+    <div class="hud">
+      <span class="chip" id="labNivel" style="background:linear-gradient(135deg,#04B487,#00688F)">NIVEL 1</span>
+      <span class="chip neutral" id="labVidas">❤❤❤</span>
+      <span class="chip neutral" id="labPts">0 pts</span>
+      <div class="spacer"></div>
+      <span class="timernum" id="labSeg">30</span>
+      <button class="icon-btn" id="labSalir" title="Salir" aria-label="Salir del juego">✕</button>
+    </div>
+    <div class="faserow"><span id="labFase">LEYENDO EL PEDIDO</span></div>
+    <div class="timerwrap"><div id="labBar"></div></div>
+    <div class="glass escenawrap"><canvas id="labCanvas"></canvas></div>
+    <div class="glass pad mt" id="labPanel"></div>
+  </section>
+
+  <section class="screen" id="s-labfin">
+    <div class="glass pad center">
+      <div style="font-size:58px" id="labFinIco">🏭</div>
+      <div class="h2" id="labFinTit">—</div>
+      <p class="muted" id="labFinSub">—</p>
+      <div class="statgrid">
+        <div class="stat"><b id="labFinPts">0</b><span>Puntaje</span></div>
+        <div class="stat"><b id="labFinNiv">0/3</b><span>Niveles</span></div>
+        <div class="stat"><b id="labFinPer">0</b><span>Fórmulas perfectas</span></div>
+        <div class="stat"><b id="labFinTime">0:00</b><span>Tiempo</span></div>
+      </div>
+      <div class="codebox">
+        <div class="lbl">Tu código de producción</div>
+        <div class="codeval" id="labFinCode">—</div>
+        <div class="row" style="justify-content:center">
+          <button class="btn sm green" id="btnLabCopy">📋 Copiar código</button>
+        </div>
+        <div id="envioLab"></div>
+      </div>
+      <div class="row mt2" style="justify-content:center">
+        <button class="btn ghost sm" data-go="home">⌂ Inicio</button>
+        <button class="btn amber" id="btnLabAgain">↻ Volver a la planta</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="modal" id="imgModal">
+  <div class="glass pad sheet">
+    <div class="h2" style="font-size:20px">Tu carta está lista</div>
+    <p class="muted small">En el celular: mantené presionada la imagen y elegí <b>Guardar imagen</b>. En la compu: botón derecho → <b>Guardar imagen como…</b></p>
+    <img id="cardImg" alt="Carta de personaje">
+    <div class="row mt" style="justify-content:center">
+      <button class="btn sm green" id="btnDownload">⬇ Descargar</button>
+      <button class="btn sm cyan" id="btnShareImg">📤 Compartir</button>
+      <button class="btn sm ghost" id="btnCloseModal">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="sala" id="salaWrap">
+  <div class="salabar">
+    <div class="salamarca">◇ POLÍMEROS EN JUEGO</div>
+    <div class="spacer"></div>
+    <span class="chip neutral" id="salaCant">0 participantes</span>
+    <button class="icon-btn" id="btnSalaX" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="salagrid">
+    <div class="salaqr">
+      <div class="salatit">Escaneá y entrá</div>
+      <div id="salaQR" class="qrbox"></div>
+      <div class="salaurl" id="salaUrl">—</div>
+      <button class="btn sm ghost" id="btnSalaUrl">✎ Cambiar la dirección del juego</button>
+    </div>
+    <div class="salarank">
+      <div class="salatit">Ranking en vivo</div>
+      <div id="salaBody"></div>
+    </div>
+  </div>
+</div>
+<script>
+/* ============================================================
+   GENERADOR DE CÓDIGOS QR (implementación propia, sin librerías)
+   Modelo 2, modo byte, corrección de errores nivel M, versiones 1 a 10.
+   Devuelve una matriz de módulos y un SVG listo para proyectar.
+   ============================================================ */
+const QR = (function(){
+
+  /* ---- Aritmética en GF(256) ---- */
+  const EXP=new Array(512), LOG=new Array(256);
+  (function(){ let x=1;
+    for(let i=0;i<255;i++){ EXP[i]=x; LOG[x]=i; x<<=1; if(x&0x100) x^=0x11D; }
+    for(let i=255;i<512;i++) EXP[i]=EXP[i-255];
+  })();
+  function mul(a,b){ return (a===0||b===0)?0:EXP[LOG[a]+LOG[b]]; }
+  function genPoly(n){
+    let p=[1];
+    for(let i=0;i<n;i++){
+      const r=new Array(p.length+1).fill(0);
+      for(let j=0;j<p.length;j++){ r[j]^=p[j]; r[j+1]^=mul(p[j],EXP[i]); }
+      p=r;
+    }
+    return p;
+  }
+  function ecCalc(data,n){
+    const g=genPoly(n), res=data.concat(new Array(n).fill(0));
+    for(let i=0;i<data.length;i++){
+      const c=res[i]; if(!c) continue;
+      for(let j=0;j<g.length;j++) res[i+j]^=mul(g[j],c);
+    }
+    return res.slice(data.length);
+  }
+
+  /* ---- Tablas para nivel M ---- */
+  const ECM=[null,
+    {ec:10,g:[[1,16]]},          {ec:16,g:[[1,28]]},
+    {ec:26,g:[[1,44]]},          {ec:18,g:[[2,32]]},
+    {ec:24,g:[[2,43]]},          {ec:16,g:[[4,27]]},
+    {ec:18,g:[[4,31]]},          {ec:22,g:[[2,38],[2,39]]},
+    {ec:22,g:[[3,36],[2,37]]},   {ec:26,g:[[4,43],[1,44]]}
+  ];
+  const ALIGN=[null,[],[6,18],[6,22],[6,26],[6,30],[6,34],
+               [6,22,38],[6,24,42],[6,26,46],[6,28,50]];
+
+  function fmtBits(mask){            // nivel M = 00
+    const data=mask;                 // (0b00 << 3) | mask
+    let d=data<<10;
+    for(let i=14;i>=10;i--) if((d>>i)&1) d^=0x537<<(i-10);
+    return ((data<<10)|d)^0x5412;
+  }
+  function verBits(v){
+    let d=v<<12;
+    for(let i=17;i>=12;i--) if((d>>i)&1) d^=0x1F25<<(i-12);
+    return (v<<12)|d;
+  }
+
+  function maskFn(k,r,c){
+    switch(k){
+      case 0: return (r+c)%2===0;
+      case 1: return r%2===0;
+      case 2: return c%3===0;
+      case 3: return (r+c)%3===0;
+      case 4: return (Math.floor(r/2)+Math.floor(c/3))%2===0;
+      case 5: return (r*c)%2+(r*c)%3===0;
+      case 6: return ((r*c)%2+(r*c)%3)%2===0;
+      default:return ((r+c)%2+(r*c)%3)%2===0;
+    }
+  }
+
+  function build(texto){
+    const bytes=new TextEncoder().encode(texto);
+
+    /* --- elegir versión --- */
+    let ver=0, T=null, dataCw=0;
+    for(let v=1;v<=10;v++){
+      const t=ECM[v]; let dc=0; t.g.forEach(b=>dc+=b[0]*b[1]);
+      const cnt = v<10?8:16;
+      if(bytes.length*8 <= dc*8-4-cnt){ ver=v; T=t; dataCw=dc; break; }
+    }
+    if(!ver) throw new Error('El texto es demasiado largo para el QR');
+
+    /* --- bits de datos --- */
+    const bits=[];
+    const push=(val,len)=>{ for(let i=len-1;i>=0;i--) bits.push((val>>i)&1); };
+    push(4,4); push(bytes.length, ver<10?8:16);
+    for(let i=0;i<bytes.length;i++) push(bytes[i],8);
+    const total=dataCw*8;
+    for(let i=0;i<4 && bits.length<total;i++) bits.push(0);
+    while(bits.length%8) bits.push(0);
+    const cw=[];
+    for(let i=0;i<bits.length;i+=8){ let b=0; for(let j=0;j<8;j++) b=(b<<1)|bits[i+j]; cw.push(b); }
+    const PAD=[0xEC,0x11];
+    for(let k=0; cw.length<dataCw; k++) cw.push(PAD[k%2]);
+
+    /* --- bloques + corrección --- */
+    const blocks=[], ecs=[]; let pos=0;
+    T.g.forEach(bg=>{ for(let i=0;i<bg[0];i++){
+      const d=cw.slice(pos,pos+bg[1]); pos+=bg[1];
+      blocks.push(d); ecs.push(ecCalc(d,T.ec));
+    }});
+    const maxD=Math.max.apply(null,blocks.map(b=>b.length));
+    const flujo=[];
+    for(let i=0;i<maxD;i++) blocks.forEach(b=>{ if(i<b.length) flujo.push(b[i]); });
+    for(let i=0;i<T.ec;i++) ecs.forEach(b=>flujo.push(b[i]));
+
+    /* --- matriz --- */
+    const size=17+4*ver;
+    const mod=Array.from({length:size},()=>new Array(size).fill(0));
+    const fix=Array.from({length:size},()=>new Array(size).fill(false));
+    const put=(r,c,v)=>{ if(r<0||c<0||r>=size||c>=size) return; mod[r][c]=v?1:0; fix[r][c]=true; };
+
+    function finder(r,c){
+      for(let i=-1;i<=7;i++) for(let j=-1;j<=7;j++){
+        const rr=r+i, cc=c+j;
+        if(rr<0||cc<0||rr>=size||cc>=size) continue;
+        const dentro = i>=0&&i<=6&&j>=0&&j<=6;
+        const negro = dentro && ((i===0||i===6||j===0||j===6) || (i>=2&&i<=4&&j>=2&&j<=4));
+        put(rr,cc,negro?1:0);
+      }
+    }
+    finder(0,0); finder(0,size-7); finder(size-7,0);
+
+    for(let i=8;i<size-8;i++){ put(6,i,i%2===0?1:0); put(i,6,i%2===0?1:0); }
+
+    const al=ALIGN[ver];
+    for(let a=0;a<al.length;a++) for(let b=0;b<al.length;b++){
+      const r=al[a], c=al[b];
+      if((r<=8&&c<=8)||(r<=8&&c>=size-9)||(r>=size-9&&c<=8)) continue;
+      for(let i=-2;i<=2;i++) for(let j=-2;j<=2;j++)
+        put(r+i,c+j, (Math.abs(i)===2||Math.abs(j)===2||(i===0&&j===0))?1:0);
+    }
+
+    put(size-8,8,1);   // módulo oscuro fijo
+
+    // reservar zonas de formato
+    for(let i=0;i<9;i++){ if(i!==6){ put(8,i,0); put(i,8,0); } }
+    for(let i=0;i<8;i++){ put(8,size-1-i,0); put(size-1-i,8,0); }
+    put(8,8,0);
+
+    if(ver>=7){
+      const vb=verBits(ver);
+      for(let i=0;i<18;i++){
+        const b=(vb>>i)&1, r=Math.floor(i/3), c=i%3;
+        put(size-11+c, r, b); put(r, size-11+c, b);
+      }
+    }
+
+    /* --- colocar los datos en zigzag --- */
+    let idx=0, bit=7, arriba=true;
+    for(let c=size-1;c>0;c-=2){
+      if(c===6) c--;
+      for(let n=0;n<size;n++){
+        const r = arriba ? size-1-n : n;
+        for(let k=0;k<2;k++){
+          const cc=c-k;
+          if(fix[r][cc]) continue;
+          let v=0;
+          if(idx<flujo.length) v=(flujo[idx]>>bit)&1;
+          mod[r][cc]=v;
+          bit--; if(bit<0){ bit=7; idx++; }
+        }
+      }
+      arriba=!arriba;
+    }
+
+    /* --- elegir la máscara con menor penalización --- */
+    let mejor=null, mejorP=Infinity;
+    for(let k=0;k<8;k++){
+      const m=mod.map((row,r)=>row.map((v,c)=> fix[r][c]?v:(maskFn(k,r,c)?v^1:v)));
+      ponerFormato(m,k);
+      const p=penal(m);
+      if(p<mejorP){ mejorP=p; mejor=m; }
+    }
+    return {size:size, mod:mejor, ver:ver};
+
+    function ponerFormato(m,k){
+      const fb=fmtBits(k);
+      for(let i=0;i<15;i++){
+        const b=(fb>>i)&1;
+        // copia 1, alrededor del localizador superior izquierdo
+        if(i<6)        m[i][8]=b;
+        else if(i===6) m[7][8]=b;
+        else if(i===7) m[8][8]=b;
+        else if(i===8) m[8][7]=b;
+        else           m[8][14-i]=b;
+        // copia 2, repartida entre el borde superior derecho y el inferior izquierdo
+        if(i<8) m[8][size-1-i]=b;
+        else    m[size-15+i][8]=b;
+      }
+      m[size-8][8]=1;
+    }
+  }
+
+  function penal(m){
+    const n=m.length; let p=0;
+    // regla 1: cinco o más iguales seguidos
+    for(let r=0;r<n;r++){
+      let run=1;
+      for(let c=1;c<n;c++){
+        if(m[r][c]===m[r][c-1]) run++; else { if(run>=5) p+=3+(run-5); run=1; }
+      }
+      if(run>=5) p+=3+(run-5);
+    }
+    for(let c=0;c<n;c++){
+      let run=1;
+      for(let r=1;r<n;r++){
+        if(m[r][c]===m[r-1][c]) run++; else { if(run>=5) p+=3+(run-5); run=1; }
+      }
+      if(run>=5) p+=3+(run-5);
+    }
+    // regla 2: bloques de 2x2
+    for(let r=0;r<n-1;r++) for(let c=0;c<n-1;c++){
+      const v=m[r][c];
+      if(v===m[r][c+1]&&v===m[r+1][c]&&v===m[r+1][c+1]) p+=3;
+    }
+    // regla 3: patrón 1011101 con 4 claros
+    const pat1=[1,0,1,1,1,0,1,0,0,0,0], pat2=[0,0,0,0,1,0,1,1,1,0,1];
+    const busca=(arr)=>{
+      let c=0;
+      for(let i=0;i+11<=arr.length;i++){
+        let a=true,b=true;
+        for(let j=0;j<11;j++){ if(arr[i+j]!==pat1[j]) a=false; if(arr[i+j]!==pat2[j]) b=false; }
+        if(a||b) c++;
+      }
+      return c;
+    };
+    for(let r=0;r<n;r++) p+=40*busca(m[r]);
+    for(let c=0;c<n;c++){ const col=[]; for(let r=0;r<n;r++) col.push(m[r][c]); p+=40*busca(col); }
+    // regla 4: proporción de oscuros
+    let dark=0; for(let r=0;r<n;r++) for(let c=0;c<n;c++) dark+=m[r][c];
+    const pct=dark*100/(n*n);
+    p+=Math.floor(Math.abs(pct-50)/5)*10;
+    return p;
+  }
+
+  /* ---- salida en SVG ---- */
+  function svg(texto, opciones){
+    const o=opciones||{};
+    const q=build(texto);
+    const quiet=o.quiet==null?4:o.quiet;
+    const n=q.size+quiet*2;
+    const fg=o.fg||'#0B0E22', bg=o.bg||'#FFFFFF';
+    let d='';
+    for(let r=0;r<q.size;r++){
+      let c=0;
+      while(c<q.size){
+        if(q.mod[r][c]){
+          let w=1; while(c+w<q.size && q.mod[r][c+w]) w++;
+          d+='M'+(c+quiet)+' '+(r+quiet)+'h'+w+'v1h-'+w+'z';
+          c+=w;
+        } else c++;
+      }
+    }
+    return '<svg viewBox="0 0 '+n+' '+n+'" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Código QR para entrar al juego">'+
+      '<rect width="'+n+'" height="'+n+'" fill="'+bg+'" rx="'+(n*0.03)+'"/>'+
+      '<path d="'+d+'" fill="'+fg+'"/></svg>';
+  }
+
+  return {build:build, svg:svg};
+})();
+
+/* ============================================================
+   POLÍMEROS EN JUEGO — Datos, ilustraciones SVG y contenido
+   Cátedra: Conocimiento de los Materiales · UTN FRTDF
+   ============================================================ */
+
+/* ---------- Ilustraciones SVG embebidas ---------- */
+const SVG = {
+
+cadena: `<svg viewBox="0 0 520 180" role="img" aria-label="Monómeros que se unen formando una cadena polimérica">
+<defs><linearGradient id="gA" x1="0" x2="1"><stop offset="0" stop-color="#FF3CAC"/><stop offset="1" stop-color="#7A5CFF"/></linearGradient></defs>
+<text x="8" y="18" font-size="12" font-weight="800" fill="currentColor" opacity=".65">MONÓMERO (etileno)</text>
+<g transform="translate(20,52)">
+  <circle cx="0" cy="0" r="15" fill="#FF3CAC"/><circle cx="42" cy="0" r="15" fill="#FF3CAC"/>
+  <line x1="15" y1="-4" x2="27" y2="-4" stroke="currentColor" stroke-width="2.5"/>
+  <line x1="15" y1="4" x2="27" y2="4" stroke="currentColor" stroke-width="2.5"/>
+  <text x="0" y="5" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">C</text>
+  <text x="42" y="5" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">C</text>
+</g>
+<g transform="translate(105,52)" fill="currentColor" opacity=".55"><text x="0" y="5" font-size="26" font-weight="800">+ n →</text></g>
+<text x="180" y="18" font-size="12" font-weight="800" fill="currentColor" opacity=".65">POLÍMERO (macromolécula)</text>
+<polyline points="185,60 210,38 235,60 260,38 285,60 310,38 335,60 360,38 385,60 410,38 435,60"
+  fill="none" stroke="url(#gA)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<g fill="#7A5CFF">
+<circle cx="185" cy="60" r="7"/><circle cx="210" cy="38" r="7"/><circle cx="235" cy="60" r="7"/><circle cx="260" cy="38" r="7"/>
+<circle cx="285" cy="60" r="7"/><circle cx="310" cy="38" r="7"/><circle cx="335" cy="60" r="7"/><circle cx="360" cy="38" r="7"/>
+<circle cx="385" cy="60" r="7"/><circle cx="410" cy="38" r="7"/><circle cx="435" cy="60" r="7"/></g>
+<text x="260" y="105" font-size="13" font-weight="700" fill="currentColor" opacity=".8" text-anchor="middle">miles de unidades repetidas = grado de polimerización</text>
+<path d="M60 130 C 140 105, 200 155, 280 130 S 420 105, 470 138" fill="none" stroke="#00C6FB" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+<path d="M60 155 C 150 175, 210 128, 300 158 S 430 172, 470 152" fill="none" stroke="#06D6A0" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+<text x="8" y="145" font-size="11" font-weight="800" fill="currentColor" opacity=".55">OVILLO</text>
+</svg>`,
+
+esfuerzo: `<svg viewBox="0 0 520 250" role="img" aria-label="Curvas esfuerzo-deformación de un polímero frágil, uno dúctil y un elastómero">
+<line x1="55" y1="215" x2="500" y2="215" stroke="currentColor" stroke-width="2" opacity=".55"/>
+<line x1="55" y1="215" x2="55" y2="20" stroke="currentColor" stroke-width="2" opacity=".55"/>
+<text x="270" y="240" font-size="12" font-weight="800" fill="currentColor" opacity=".7" text-anchor="middle">DEFORMACIÓN ε (%)</text>
+<text x="16" y="120" font-size="12" font-weight="800" fill="currentColor" opacity=".7" transform="rotate(-90,16,120)" text-anchor="middle">ESFUERZO σ</text>
+<!-- frágil -->
+<path d="M55 215 L150 45" fill="none" stroke="#FF4D6D" stroke-width="5" stroke-linecap="round"/>
+<circle cx="150" cy="45" r="6" fill="#FF4D6D"/><text x="158" y="42" font-size="12" font-weight="800" fill="#FF4D6D">frágil (PS, PMMA)</text>
+<!-- dúctil -->
+<path d="M55 215 C 85 150, 95 118, 120 108 C 150 96, 165 130, 200 132 C 260 136, 300 130, 350 110 C 380 98, 395 88, 405 78" fill="none" stroke="#06D6A0" stroke-width="5" stroke-linecap="round"/>
+<circle cx="120" cy="108" r="6" fill="#06D6A0"/>
+<text x="88" y="94" font-size="11" font-weight="800" fill="#06D6A0" text-anchor="end">fluencia</text>
+<text x="360" y="70" font-size="12" font-weight="800" fill="#06D6A0">dúctil (PE, PP)</text>
+<!-- elastómero -->
+<path d="M55 215 C 180 212, 300 206, 380 190 C 430 178, 455 150, 468 118" fill="none" stroke="#7A5CFF" stroke-width="5" stroke-linecap="round"/>
+<text x="150" y="199" font-size="12" font-weight="800" fill="#7A5CFF">elastómero (caucho)</text>
+<!-- pendiente E -->
+<line x1="58" y1="205" x2="98" y2="205" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3" opacity=".7"/>
+<line x1="98" y1="205" x2="98" y2="133" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3" opacity=".7"/>
+<text x="103" y="180" font-size="13" font-weight="800" fill="currentColor" opacity=".85">E = σ/ε</text>
+</svg>`,
+
+termo: `<svg viewBox="0 0 520 210" role="img" aria-label="Termoplástico con cadenas libres frente a termorrígido con enlaces cruzados">
+<rect x="6" y="26" width="243" height="150" rx="16" fill="#00C6FB" opacity=".12"/>
+<rect x="271" y="26" width="243" height="150" rx="16" fill="#FF4D6D" opacity=".12"/>
+<text x="127" y="18" font-size="13" font-weight="800" fill="#0093C4" text-anchor="middle">TERMOPLÁSTICO</text>
+<text x="392" y="18" font-size="13" font-weight="800" fill="#E23D5B" text-anchor="middle">TERMORRÍGIDO</text>
+<g fill="none" stroke="#0093C4" stroke-width="4.5" stroke-linecap="round">
+<path d="M22 60 C 70 40, 110 82, 165 56 S 225 44, 236 62"/>
+<path d="M22 100 C 66 122, 118 76, 168 104 S 220 118, 236 96"/>
+<path d="M22 145 C 74 128, 108 166, 166 142 S 224 130, 236 148"/>
+</g>
+<g fill="none" stroke="#E23D5B" stroke-width="4.5" stroke-linecap="round">
+<path d="M288 60 C 336 42, 372 84, 428 58 S 490 46, 501 64"/>
+<path d="M288 105 C 332 126, 384 80, 432 108 S 486 122, 501 100"/>
+<path d="M288 150 C 340 132, 372 170, 430 146 S 490 134, 501 152"/>
+</g>
+<g stroke="#FFB020" stroke-width="5" stroke-linecap="round">
+<line x1="330" y1="58" x2="330" y2="112"/><line x1="330" y1="112" x2="330" y2="156"/>
+<line x1="400" y1="70" x2="400" y2="100"/><line x1="400" y1="100" x2="400" y2="152"/>
+<line x1="465" y1="56" x2="465" y2="110"/><line x1="465" y1="110" x2="465" y2="150"/>
+</g>
+<text x="127" y="196" font-size="12" font-weight="800" fill="currentColor" opacity=".8" text-anchor="middle">calienta → fluye → se reprocesa</text>
+<text x="392" y="196" font-size="12" font-weight="800" fill="currentColor" opacity=".8" text-anchor="middle">red 3D → no funde, se degrada</text>
+<text x="392" y="208" font-size="10.5" font-weight="800" fill="#B57900" text-anchor="middle">▮ enlaces cruzados (curado)</text>
+</svg>`,
+
+tg: `<svg viewBox="0 0 520 220" role="img" aria-label="Curva del módulo elástico frente a la temperatura mostrando la transición vítrea">
+<line x1="55" y1="185" x2="500" y2="185" stroke="currentColor" stroke-width="2" opacity=".55"/>
+<line x1="55" y1="185" x2="55" y2="18" stroke="currentColor" stroke-width="2" opacity=".55"/>
+<text x="278" y="210" font-size="12" font-weight="800" fill="currentColor" opacity=".7" text-anchor="middle">TEMPERATURA →</text>
+<text x="16" y="105" font-size="12" font-weight="800" fill="currentColor" opacity=".7" transform="rotate(-90,16,105)" text-anchor="middle">MÓDULO E</text>
+<path d="M60 42 L175 46 C 205 48, 215 130, 245 140 C 275 150, 330 146, 380 146 C 420 146, 440 158, 458 182" fill="none" stroke="#7A5CFF" stroke-width="6" stroke-linecap="round"/>
+<line x1="212" y1="18" x2="212" y2="185" stroke="#FFB020" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="212" y="14" font-size="14" font-weight="800" fill="#C58200" text-anchor="middle">Tg</text>
+<line x1="452" y1="18" x2="452" y2="185" stroke="#FF4D6D" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="452" y="14" font-size="14" font-weight="800" fill="#E23D5B" text-anchor="middle">Tm</text>
+<text x="120" y="72" font-size="12" font-weight="800" fill="currentColor" opacity=".8" text-anchor="middle">rígido / vítreo</text>
+<text x="310" y="128" font-size="12" font-weight="800" fill="currentColor" opacity=".8" text-anchor="middle">gomoso / flexible</text>
+<text x="470" y="172" font-size="12" font-weight="800" fill="#E23D5B" text-anchor="end">fluye</text>
+</svg>`,
+
+creep: `<svg viewBox="0 0 520 200" role="img" aria-label="Deformación creciente en el tiempo bajo carga constante">
+<rect x="18" y="34" width="150" height="12" rx="6" fill="#7A5CFF"/>
+<rect x="18" y="30" width="10" height="22" rx="3" fill="currentColor" opacity=".45"/><rect x="158" y="30" width="10" height="22" rx="3" fill="currentColor" opacity=".45"/>
+<text x="93" y="24" font-size="11" font-weight="800" fill="currentColor" opacity=".7" text-anchor="middle">t = 0</text>
+<path d="M18 100 Q 93 128 168 100" fill="none" stroke="#7A5CFF" stroke-width="12" stroke-linecap="round"/>
+<rect x="18" y="94" width="10" height="22" rx="3" fill="currentColor" opacity=".45"/><rect x="158" y="94" width="10" height="22" rx="3" fill="currentColor" opacity=".45"/>
+<text x="93" y="88" font-size="11" font-weight="800" fill="currentColor" opacity=".7" text-anchor="middle">t = 6 meses</text>
+<path d="M18 160 Q 93 210 168 160" fill="none" stroke="#FF4D6D" stroke-width="12" stroke-linecap="round"/>
+<rect x="18" y="154" width="10" height="22" rx="3" fill="currentColor" opacity=".45"/><rect x="158" y="154" width="10" height="22" rx="3" fill="currentColor" opacity=".45"/>
+<text x="93" y="148" font-size="11" font-weight="800" fill="#E23D5B" text-anchor="middle">t = 2 años</text>
+<g fill="#FFB020"><rect x="70" y="8" width="46" height="14" rx="4"/><text x="93" y="19" font-size="10" font-weight="800" fill="#5B3A00" text-anchor="middle">CARGA</text></g>
+<line x1="230" y1="170" x2="500" y2="170" stroke="currentColor" stroke-width="2" opacity=".55"/>
+<line x1="230" y1="170" x2="230" y2="30" stroke="currentColor" stroke-width="2" opacity=".55"/>
+<path d="M230 170 C 250 96, 268 84, 300 78 C 350 70, 400 66, 440 52 C 462 44, 476 36, 486 28" fill="none" stroke="#FF4D6D" stroke-width="5" stroke-linecap="round"/>
+<text x="365" y="192" font-size="12" font-weight="800" fill="currentColor" opacity=".7" text-anchor="middle">TIEMPO (escala log)</text>
+<text x="240" y="46" font-size="12" font-weight="800" fill="currentColor" opacity=".7">ε</text>
+<text x="300" y="60" font-size="11.5" font-weight="800" fill="#E23D5B">carga constante, deformación que crece</text>
+</svg>`,
+
+impacto: `<svg viewBox="0 0 520 190" role="img" aria-label="Ensayo de impacto: el acrílico estalla, el policarbonato absorbe el golpe">
+<rect x="30" y="40" width="180" height="110" rx="10" fill="#00C6FB" opacity=".18" stroke="#00C6FB" stroke-width="2"/>
+<text x="120" y="30" font-size="12.5" font-weight="800" fill="#0093C4" text-anchor="middle">PMMA (acrílico)</text>
+<g stroke="#E23D5B" stroke-width="3" stroke-linecap="round" fill="none">
+<path d="M120 95 L60 52"/><path d="M120 95 L188 60"/><path d="M120 95 L64 140"/><path d="M120 95 L184 138"/><path d="M120 95 L118 44"/><path d="M120 95 L122 146"/><path d="M120 95 L36 100"/><path d="M120 95 L204 92"/>
+</g>
+<circle cx="120" cy="95" r="9" fill="#E23D5B"/>
+<text x="120" y="176" font-size="12" font-weight="800" fill="#E23D5B" text-anchor="middle">rotura frágil ≈ 20 J/m</text>
+<rect x="300" y="40" width="180" height="110" rx="10" fill="#06D6A0" opacity=".18" stroke="#06D6A0" stroke-width="2"/>
+<text x="390" y="30" font-size="12.5" font-weight="800" fill="#059B75" text-anchor="middle">POLICARBONATO</text>
+<circle cx="390" cy="95" r="9" fill="#06D6A0"/>
+<g fill="none" stroke="#06D6A0" stroke-width="2.5" opacity=".8"><circle cx="390" cy="95" r="22"/><circle cx="390" cy="95" r="36"/><circle cx="390" cy="95" r="50"/></g>
+<text x="390" y="176" font-size="12" font-weight="800" fill="#059B75" text-anchor="middle">deformación plástica ≈ 800 J/m</text>
+<g transform="translate(255,86)"><path d="M0 0 l16 9 l-16 9 z" fill="currentColor" opacity=".5"/></g>
+</svg>`,
+
+termica: `<svg viewBox="0 0 520 170" role="img" aria-label="Comparación de conductividad térmica entre metales y polímeros">
+<text x="8" y="20" font-size="12" font-weight="800" fill="currentColor" opacity=".7">CONDUCTIVIDAD TÉRMICA λ (W/m·K) — escala logarítmica</text>
+<g font-size="12.5" font-weight="800" fill="currentColor">
+<text x="8" y="52">Cobre</text><rect x="110" y="40" width="380" height="16" rx="8" fill="#FF6B6B"/><text x="482" y="53" font-size="12" fill="#fff" text-anchor="end">400</text>
+<text x="8" y="82">Aluminio</text><rect x="110" y="70" width="340" height="16" rx="8" fill="#FF9A3C"/><text x="442" y="83" font-size="12" fill="#fff" text-anchor="end">210</text>
+<text x="8" y="112">Vidrio</text><rect x="110" y="100" width="150" height="16" rx="8" fill="#00C6FB"/><text x="252" y="113" font-size="12" fill="#fff" text-anchor="end">1,0</text>
+<text x="8" y="142">Polímeros</text><rect x="110" y="130" width="72" height="16" rx="8" fill="#06D6A0"/><text x="192" y="143" font-size="12" fill="currentColor" opacity=".85">0,1 – 0,5</text>
+</g>
+<text x="110" y="164" font-size="11.5" font-weight="800" fill="currentColor" opacity=".65">sin electrones libres → el calor solo viaja por vibración de las cadenas</text>
+</svg>`,
+
+ptfe: `<svg viewBox="0 0 520 175" role="img" aria-label="Cadena de PTFE blindada por átomos de flúor">
+<polyline points="60,105 105,80 150,105 195,80 240,105 285,80 330,105 375,80 420,105 460,82" fill="none" stroke="#2F3A6B" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<g fill="#2F3A6B"><circle cx="60" cy="105" r="12"/><circle cx="105" cy="80" r="12"/><circle cx="150" cy="105" r="12"/><circle cx="195" cy="80" r="12"/><circle cx="240" cy="105" r="12"/><circle cx="285" cy="80" r="12"/><circle cx="330" cy="105" r="12"/><circle cx="375" cy="80" r="12"/><circle cx="420" cy="105" r="12"/></g>
+<g fill="#00C6FB" opacity=".95">
+<circle cx="60" cy="145" r="14"/><circle cx="105" cy="40" r="14"/><circle cx="150" cy="145" r="14"/><circle cx="195" cy="40" r="14"/><circle cx="240" cy="145" r="14"/><circle cx="285" cy="40" r="14"/><circle cx="330" cy="145" r="14"/><circle cx="375" cy="40" r="14"/><circle cx="420" cy="145" r="14"/>
+<circle cx="34" cy="82" r="14"/><circle cx="131" cy="55" r="14"/><circle cx="221" cy="80" r="14"/><circle cx="311" cy="55" r="14"/><circle cx="401" cy="80" r="14"/>
+</g>
+<g font-size="11" font-weight="800" fill="#fff" text-anchor="middle">
+<text x="60" y="149">F</text><text x="105" y="44">F</text><text x="150" y="149">F</text><text x="195" y="44">F</text><text x="240" y="149">F</text><text x="285" y="44">F</text><text x="330" y="149">F</text><text x="375" y="44">F</text><text x="420" y="149">F</text></g>
+<text x="8" y="20" font-size="12.5" font-weight="800" fill="currentColor" opacity=".8">Esqueleto de carbono (–C–C–) totalmente envuelto en flúor</text>
+<text x="8" y="170" font-size="12" font-weight="800" fill="#0093C4">Enlace C–F ≈ 485 kJ/mol · nada llega al carbono</text>
+</svg>`,
+
+uv: `<svg viewBox="0 0 520 180" role="img" aria-label="Degradación UV del polietileno y protección con negro de humo">
+<g stroke="#FFB020" stroke-width="4" stroke-linecap="round">
+<line x1="40" y1="16" x2="66" y2="46"/><line x1="90" y1="16" x2="116" y2="46"/><line x1="140" y1="16" x2="166" y2="46"/>
+<line x1="330" y1="16" x2="356" y2="46"/><line x1="380" y1="16" x2="406" y2="46"/><line x1="430" y1="16" x2="456" y2="46"/></g>
+<text x="205" y="30" font-size="13" font-weight="800" fill="#C58200" text-anchor="middle">☀ RADIACIÓN UV</text>
+<rect x="20" y="60" width="200" height="70" rx="14" fill="#E9EDF7" stroke="#8A93C4" stroke-width="2"/>
+<text x="120" y="52" font-size="12" font-weight="800" fill="currentColor" opacity=".8" text-anchor="middle">PE SIN PROTECCIÓN</text>
+<g stroke="#E23D5B" stroke-width="3" fill="none" stroke-linecap="round">
+<path d="M45 70 l10 22 l-8 20"/><path d="M100 62 l-9 26 l12 22"/><path d="M160 68 l8 24 l-10 24"/><path d="M195 78 l-8 20"/></g>
+<text x="120" y="150" font-size="12" font-weight="800" fill="#E23D5B" text-anchor="middle">rotura de cadenas → fisuras, fragilidad</text>
+<text x="120" y="168" font-size="11" font-weight="800" fill="currentColor" opacity=".6" text-anchor="middle">1 a 2 años a la intemperie</text>
+<rect x="300" y="60" width="200" height="70" rx="14" fill="#1A1F3D" stroke="#000" stroke-width="2"/>
+<text x="400" y="52" font-size="12" font-weight="800" fill="currentColor" opacity=".8" text-anchor="middle">PE + 2,5 % NEGRO DE HUMO</text>
+<g fill="#4A5478" opacity=".85"><circle cx="330" cy="80" r="5"/><circle cx="365" cy="98" r="5"/><circle cx="400" cy="76" r="5"/><circle cx="435" cy="104" r="5"/><circle cx="470" cy="84" r="5"/><circle cx="348" cy="118" r="5"/><circle cx="415" cy="118" r="5"/><circle cx="478" cy="114" r="5"/></g>
+<text x="400" y="150" font-size="12" font-weight="800" fill="#059B75" text-anchor="middle">el UV se absorbe antes de llegar a la cadena</text>
+<text x="400" y="168" font-size="11" font-weight="800" fill="currentColor" opacity=".6" text-anchor="middle">más de 50 años de servicio</text>
+</svg>`,
+
+rigidez: `<svg viewBox="0 0 520 200" role="img" aria-label="Rigidez dieléctrica: campo máximo antes de la perforación del aislante">
+<rect x="120" y="70" width="280" height="58" rx="8" fill="#7A5CFF" opacity=".28" stroke="#7A5CFF" stroke-width="2"/>
+<text x="260" y="60" font-size="12.5" font-weight="800" fill="currentColor" opacity=".85" text-anchor="middle">AISLANTE — espesor d</text>
+<rect x="100" y="42" width="320" height="14" rx="4" fill="#FF4D6D"/><text x="70" y="53" font-size="13" font-weight="800" fill="#E23D5B">+U</text>
+<rect x="100" y="142" width="320" height="14" rx="4" fill="#4A5478"/><text x="70" y="153" font-size="13" font-weight="800" fill="currentColor" opacity=".7">0 V</text>
+<g stroke="#00C6FB" stroke-width="2.5" opacity=".8">
+<line x1="150" y1="58" x2="150" y2="140"/><line x1="185" y1="58" x2="185" y2="140"/><line x1="220" y1="58" x2="220" y2="140"/>
+<line x1="330" y1="58" x2="330" y2="140"/><line x1="365" y1="58" x2="365" y2="140"/><line x1="400" y1="58" x2="400" y2="140"/></g>
+<path d="M275 56 l-14 34 l18 -6 l-16 56" fill="none" stroke="#FFB020" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="278" y="186" font-size="12.5" font-weight="800" fill="#C58200" text-anchor="middle">perforación: canal conductor permanente</text>
+<text x="8" y="20" font-size="13" font-weight="800" fill="currentColor" opacity=".85">E = U / d  [kV/mm]  ·  si E &gt; rigidez dieléctrica → ruptura</text>
+<text x="8" y="196" font-size="11.5" font-weight="800" fill="currentColor" opacity=".65">XLPE 20-40 · PVC 14-20 · Aire 3 kV/mm</text>
+</svg>`,
+
+capacitor: `<svg viewBox="0 0 520 200" role="img" aria-label="Capacitor de película de polipropileno metalizado">
+<text x="8" y="18" font-size="12.5" font-weight="800" fill="currentColor" opacity=".8">CAPACITOR DE FILM: C = εr · ε₀ · A / d</text>
+<g transform="translate(20,34)">
+<rect x="0" y="0" width="230" height="12" rx="3" fill="#FF9A3C"/><text x="240" y="10" font-size="11" font-weight="800" fill="#C56A00">armadura metalizada (Al ~30 nm)</text>
+<rect x="0" y="16" width="230" height="26" rx="3" fill="#7A5CFF" opacity=".55"/><text x="240" y="34" font-size="11" font-weight="800" fill="#5B4BE0">film de PP  εr ≈ 2,2  ·  d ≈ 5 µm</text>
+<rect x="0" y="46" width="230" height="12" rx="3" fill="#FF9A3C"/>
+<rect x="0" y="62" width="230" height="26" rx="3" fill="#7A5CFF" opacity=".55"/>
+<rect x="0" y="92" width="230" height="12" rx="3" fill="#FF9A3C"/>
+</g>
+<g transform="translate(300,150)"><path d="M0 0 h420" stroke="none"/></g>
+<text x="20" y="158" font-size="12" font-weight="800" fill="currentColor" opacity=".8">Se bobina en rollo: mucha superficie A en poco volumen</text>
+<g transform="translate(360,110)">
+<circle cx="0" cy="0" r="42" fill="none" stroke="#7A5CFF" stroke-width="4"/>
+<circle cx="0" cy="0" r="30" fill="none" stroke="#FF9A3C" stroke-width="4"/>
+<circle cx="0" cy="0" r="18" fill="none" stroke="#7A5CFF" stroke-width="4"/>
+<circle cx="0" cy="0" r="7" fill="#FF9A3C"/>
+</g>
+<text x="360" y="176" font-size="11.5" font-weight="800" fill="currentColor" opacity=".7" text-anchor="middle">tan δ ≈ 10⁻⁴ → casi no se calienta</text>
+</svg>`,
+
+cable: `<svg viewBox="0 0 520 215" role="img" aria-label="Corte de cable con aislación de PVC frente a XLPE">
+<g transform="translate(130,105)">
+<circle r="72" fill="#FF9A3C" opacity=".2" stroke="#FF9A3C" stroke-width="2"/>
+<circle r="56" fill="#FF9A3C" opacity=".35"/>
+<circle r="34" fill="#C87A2B"/><circle r="34" fill="none" stroke="#8A4E12" stroke-width="2"/>
+<g fill="#E39A4E"><circle cx="-14" cy="-14" r="9"/><circle cx="14" cy="-14" r="9"/><circle cx="-14" cy="14" r="9"/><circle cx="14" cy="14" r="9"/><circle cx="0" cy="0" r="9"/></g>
+</g>
+<text x="130" y="24" font-size="14" font-weight="800" fill="#C56A00" text-anchor="middle">PVC</text>
+<text x="130" y="196" font-size="13" font-weight="800" fill="currentColor" opacity=".85" text-anchor="middle">70 °C servicio · 160 °C cortocircuito</text>
+<text x="130" y="212" font-size="11.5" font-weight="800" fill="#E23D5B" text-anchor="middle">al quemarse libera HCl</text>
+<g transform="translate(390,105)">
+<circle r="72" fill="#06D6A0" opacity=".2" stroke="#06D6A0" stroke-width="2"/>
+<circle r="56" fill="#06D6A0" opacity=".35"/>
+<circle r="40" fill="none" stroke="#151B3B" stroke-width="5" opacity=".55"/>
+<circle r="34" fill="#C87A2B"/><circle r="34" fill="none" stroke="#8A4E12" stroke-width="2"/>
+<g fill="#E39A4E"><circle cx="-14" cy="-14" r="9"/><circle cx="14" cy="-14" r="9"/><circle cx="-14" cy="14" r="9"/><circle cx="14" cy="14" r="9"/><circle cx="0" cy="0" r="9"/></g>
+</g>
+<text x="390" y="24" font-size="14" font-weight="800" fill="#059B75" text-anchor="middle">XLPE</text>
+<text x="390" y="196" font-size="13" font-weight="800" fill="currentColor" opacity=".85" text-anchor="middle">90 °C servicio · 250 °C cortocircuito</text>
+<text x="390" y="212" font-size="11.5" font-weight="800" fill="#059B75" text-anchor="middle">+15 a 20 % de corriente admisible</text>
+<text x="260" y="100" font-size="26" font-weight="800" fill="currentColor" opacity=".35" text-anchor="middle">vs</text>
+<text x="470" y="70" font-size="10.5" font-weight="800" fill="currentColor" opacity=".6">semiconductora</text>
+</svg>`,
+
+trafo: `<svg viewBox="0 0 520 210" role="img" aria-label="Transformador seco encapsulado en resina epoxi">
+<rect x="60" y="30" width="30" height="150" rx="6" fill="#8A93C4"/><rect x="430" y="30" width="30" height="150" rx="6" fill="#8A93C4"/>
+<rect x="60" y="30" width="400" height="26" rx="6" fill="#8A93C4"/><rect x="60" y="154" width="400" height="26" rx="6" fill="#8A93C4"/>
+<text x="260" y="20" font-size="12" font-weight="800" fill="currentColor" opacity=".7" text-anchor="middle">NÚCLEO DE CHAPA MAGNÉTICA</text>
+<g>
+<rect x="140" y="46" width="86" height="118" rx="14" fill="#7A5CFF" opacity=".35" stroke="#7A5CFF" stroke-width="3"/>
+<rect x="154" y="60" width="58" height="90" rx="8" fill="#C87A2B"/>
+<g stroke="#8A4E12" stroke-width="2"><line x1="154" y1="72" x2="212" y2="72"/><line x1="154" y1="86" x2="212" y2="86"/><line x1="154" y1="100" x2="212" y2="100"/><line x1="154" y1="114" x2="212" y2="114"/><line x1="154" y1="128" x2="212" y2="128"/><line x1="154" y1="142" x2="212" y2="142"/></g>
+</g>
+<g>
+<rect x="290" y="46" width="86" height="118" rx="14" fill="#7A5CFF" opacity=".35" stroke="#7A5CFF" stroke-width="3"/>
+<rect x="304" y="60" width="58" height="90" rx="8" fill="#C87A2B"/>
+<g stroke="#8A4E12" stroke-width="2"><line x1="304" y1="72" x2="362" y2="72"/><line x1="304" y1="86" x2="362" y2="86"/><line x1="304" y1="100" x2="362" y2="100"/><line x1="304" y1="114" x2="362" y2="114"/><line x1="304" y1="128" x2="362" y2="128"/><line x1="304" y1="142" x2="362" y2="142"/></g>
+</g>
+<text x="258" y="105" font-size="13" font-weight="800" fill="currentColor" opacity=".55" text-anchor="middle">3~</text>
+<text x="183" y="182" font-size="11.5" font-weight="800" fill="#5B4BE0" text-anchor="middle">resina epoxi colada al vacío</text>
+<text x="333" y="182" font-size="11.5" font-weight="800" fill="#5B4BE0" text-anchor="middle">sin burbujas = sin descargas parciales</text>
+<text x="260" y="204" font-size="12" font-weight="800" fill="currentColor" opacity=".75" text-anchor="middle">Clase térmica del aislante: B 130 °C · F 155 °C · H 180 °C</text>
+</svg>`,
+
+conductor: `<svg viewBox="0 0 520 185" role="img" aria-label="Cadena conjugada de un polímero conductor con electrones deslocalizados">
+<text x="8" y="18" font-size="12.5" font-weight="800" fill="currentColor" opacity=".8">CADENA CONJUGADA: simple – doble – simple – doble …</text>
+<polyline points="40,90 85,65 130,90 175,65 220,90 265,65 310,90 355,65 400,90 445,65 485,90" fill="none" stroke="#151B3B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
+<g stroke="#FF3CAC" stroke-width="5" stroke-linecap="round">
+<line x1="92" y1="72" x2="132" y2="95"/><line x1="182" y1="72" x2="222" y2="95"/><line x1="272" y1="72" x2="312" y2="95"/><line x1="362" y1="72" x2="402" y2="95"/><line x1="452" y1="72" x2="490" y2="95"/></g>
+<g fill="#7A5CFF"><circle cx="40" cy="90" r="8"/><circle cx="85" cy="65" r="8"/><circle cx="130" cy="90" r="8"/><circle cx="175" cy="65" r="8"/><circle cx="220" cy="90" r="8"/><circle cx="265" cy="65" r="8"/><circle cx="310" cy="90" r="8"/><circle cx="355" cy="65" r="8"/><circle cx="400" cy="90" r="8"/><circle cx="445" cy="65" r="8"/></g>
+<path d="M40 40 C 140 12, 340 12, 470 38" fill="none" stroke="#00C6FB" stroke-width="3" stroke-dasharray="6 5" opacity=".9"/>
+<g fill="#00C6FB"><circle cx="120" cy="26" r="6"/><circle cx="230" cy="19" r="6"/><circle cx="340" cy="20" r="6"/><circle cx="430" cy="30" r="6"/></g>
+<text x="255" y="12" font-size="11.5" font-weight="800" fill="#0093C4" text-anchor="middle">nube de electrones π deslocalizados</text>
+<g transform="translate(40,130)">
+<rect x="0" y="0" width="440" height="16" rx="8" fill="url(#gCond)"/>
+<defs><linearGradient id="gCond" x1="0" x2="1"><stop offset="0" stop-color="#7A5CFF"/><stop offset=".55" stop-color="#00C6FB"/><stop offset="1" stop-color="#06D6A0"/></linearGradient></defs>
+</g>
+<g font-size="11" font-weight="800" fill="currentColor" opacity=".75">
+<text x="40" y="164">10⁻¹⁰ S/cm · aislante</text>
+<text x="480" y="164" text-anchor="end">10⁴ S/cm · casi metal</text></g>
+<text x="260" y="182" font-size="11.5" font-weight="800" fill="#5B4BE0" text-anchor="middle">el DOPADO mueve al material a lo largo de esta escala</text>
+</svg>`,
+
+extrusion: `<svg viewBox="0 0 520 180" role="img" aria-label="Extrusora aplicando aislación continua sobre un conductor">
+<rect x="30" y="14" width="70" height="44" rx="8" fill="#7A5CFF" opacity=".5"/>
+<path d="M52 58 L78 58 L70 84 L60 84 Z" fill="#7A5CFF" opacity=".5"/>
+<text x="65" y="40" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">TOLVA</text>
+<rect x="20" y="84" width="330" height="52" rx="16" fill="#4A5478"/>
+<g stroke="#8A93C4" stroke-width="6" stroke-linecap="round" fill="none">
+<path d="M40 110 q 14 -20 28 0 q 14 20 28 0 q 14 -20 28 0 q 14 20 28 0 q 14 -20 28 0 q 14 20 28 0 q 14 -20 28 0 q 14 20 28 0 q 14 -20 28 0"/></g>
+<text x="185" y="152" font-size="11.5" font-weight="800" fill="currentColor" opacity=".75" text-anchor="middle">husillo: transporta, funde y presuriza</text>
+<g fill="#FF4D6D" opacity=".8"><rect x="120" y="70" width="26" height="9" rx="4"/><rect x="180" y="70" width="26" height="9" rx="4"/><rect x="240" y="70" width="26" height="9" rx="4"/><rect x="300" y="70" width="26" height="9" rx="4"/></g>
+<text x="223" y="64" font-size="10.5" font-weight="800" fill="#E23D5B" text-anchor="middle">resistencias calefactoras</text>
+<rect x="350" y="78" width="34" height="64" rx="8" fill="#151B3B" opacity=".75"/>
+<text x="367" y="164" font-size="11" font-weight="800" fill="currentColor" opacity=".7" text-anchor="middle">cabezal</text>
+<line x1="0" y1="110" x2="500" y2="110" stroke="#C87A2B" stroke-width="8"/>
+<rect x="384" y="96" width="120" height="28" rx="14" fill="#06D6A0" opacity=".8"/>
+<text x="444" y="88" font-size="11.5" font-weight="800" fill="#059B75" text-anchor="middle">cable aislado, en continuo</text>
+</svg>`,
+
+soplado: `<svg viewBox="0 0 520 180" role="img" aria-label="Proceso de inyección y soplado con estirado de una botella de PET">
+<g transform="translate(40,30)">
+<path d="M14 0 h20 v10 h-6 v18 c 12 8 12 62 0 70 h-8 c -12 -8 -12 -62 0 -70 v-18 h-6 z" fill="#00C6FB" opacity=".8"/>
+<text x="24" y="120" font-size="11.5" font-weight="800" fill="currentColor" opacity=".8" text-anchor="middle">1. PREFORMA</text>
+<text x="24" y="136" font-size="10.5" font-weight="700" fill="currentColor" opacity=".6" text-anchor="middle">inyectada</text>
+</g>
+<text x="120" y="86" font-size="22" fill="currentColor" opacity=".4">→</text>
+<g transform="translate(150,30)">
+<path d="M14 0 h20 v10 h-6 v18 c 16 10 16 62 0 70 h-8 c -16 -8 -16 -60 0 -70 v-18 h-6 z" fill="#FF9A3C" opacity=".8"/>
+<g stroke="#FF4D6D" stroke-width="3"><line x1="24" y1="34" x2="24" y2="86"/></g>
+<text x="24" y="120" font-size="11.5" font-weight="800" fill="currentColor" opacity=".8" text-anchor="middle">2. RECALENTADO</text>
+<text x="24" y="136" font-size="10.5" font-weight="700" fill="currentColor" opacity=".6" text-anchor="middle">arriba de Tg</text>
+</g>
+<text x="230" y="86" font-size="22" fill="currentColor" opacity=".4">→</text>
+<g transform="translate(266,20)">
+<rect x="0" y="0" width="86" height="130" rx="12" fill="none" stroke="currentColor" stroke-width="3" opacity=".45" stroke-dasharray="6 5"/>
+<path d="M33 12 h20 v12 h-5 v16 c 24 12 26 66 0 78 h-10 c -26 -12 -24 -66 0 -78 v-16 h-5 z" fill="#06D6A0" opacity=".85"/>
+<g stroke="#7A5CFF" stroke-width="3" fill="none"><line x1="43" y1="24" x2="43" y2="60"/><path d="M43 60 l-7 -8 M43 60 l7 -8"/></g>
+<text x="43" y="148" font-size="11.5" font-weight="800" fill="currentColor" opacity=".8" text-anchor="middle">3. SOPLADO + ESTIRADO</text>
+</g>
+<text x="368" y="86" font-size="22" fill="currentColor" opacity=".4">→</text>
+<g transform="translate(408,26)">
+<path d="M34 6 h22 v13 h-6 v16 c 28 14 30 72 0 86 h-12 c -30 -12 -28 -72 0 -86 v-16 h-6 z" fill="#7A5CFF" opacity=".85"/>
+<text x="45" y="142" font-size="11.5" font-weight="800" fill="currentColor" opacity=".8" text-anchor="middle">4. BOTELLA</text>
+</g>
+<text x="260" y="176" font-size="12" font-weight="800" fill="#5B4BE0" text-anchor="middle">biorientación: las moléculas se alinean en 2 direcciones → resistencia y barrera al CO₂</text>
+</svg>`
+};
+
+/* ---------- Categorías ---------- */
+const CATS = {
+  mec:{n:'Mecánicas',            c1:'#FF6B6B', c2:'#FF9F45', i:'🔧'},
+  ter:{n:'Térmicas',             c1:'#FF9A3C', c2:'#FFD166', i:'🔥'},
+  qui:{n:'Químicas',             c1:'#06D6A0', c2:'#00C6FB', i:'🧪'},
+  ele:{n:'Eléctricas',           c1:'#7A5CFF', c2:'#00C6FB', i:'⚡'},
+  etc:{n:'Electrotecnia',        c1:'#4776E6', c2:'#8E54E9', i:'🔌'},
+  pro:{n:'Procesamiento',        c1:'#11998E', c2:'#38EF7D', i:'⚙️'}
+};
+
+/* ---------- 15 preguntas de la trivia ---------- */
+const PREGUNTAS = [
+{cat:'mec', art:'esfuerzo',
+ q:'En la curva esfuerzo–deformación de un plástico, ¿qué representa el módulo de elasticidad (módulo de Young)?',
+ o:['La pendiente del tramo recto inicial','La tensión máxima antes de romper','El área total bajo la curva','El alargamiento porcentual a la rotura'], a:0,
+ e:'E = σ/ε en la zona elástica: es la pendiente de la recta inicial, y cuanto más empinada, más rígido el material. La tensión máxima es la resistencia a la tracción, el área bajo la curva es la tenacidad y el alargamiento a rotura mide la ductilidad.',
+ d:'PS rígido E ≈ 3 GPa · PEBD flexible E ≈ 0,2 GPa · Acero E ≈ 210 GPa. Un plástico rígido es unas 70 veces menos rígido que el acero.'},
+
+{cat:'mec', art:'creep',
+ q:'Un estante de PVC cargado con libros se va combando de a poco durante meses, sin que aumente el peso. ¿Cómo se llama ese fenómeno?',
+ o:['Fluencia lenta (creep)','Fatiga','Recuperación elástica','Histéresis mecánica'], a:0,
+ e:'El creep es la deformación que crece con el tiempo bajo carga constante. En los polímeros aparece ya a temperatura ambiente por el deslizamiento viscoelástico de las cadenas, y se acelera con la temperatura y con la tensión. La fatiga, en cambio, necesita cargas cíclicas.',
+ d:'Por creep se dimensionan bandejas portacables y soportes plásticos: se usa el módulo a 20 años, no el módulo instantáneo del ensayo.'},
+
+{cat:'mec', art:'impacto',
+ q:'El policarbonato se usa en cascos, visores y pantallas antivandálicas. ¿Qué propiedad mecánica lo destaca?',
+ o:['Tenacidad: absorbe muchísima energía antes de romper','Dureza superficial','Baja densidad','Módulo elástico altísimo'], a:0,
+ e:'La tenacidad es la energía que el material absorbe hasta la rotura, o sea el área bajo la curva esfuerzo–deformación. El PC combina rigidez con una enorme deformación plástica previa a la rotura. Justamente en dureza superficial es pobre: se raya con facilidad, por eso se le aplican recubrimientos.',
+ d:'Resiliencia Izod del PC: 600–900 J/m. El PMMA (acrílico), de aspecto casi idéntico, ronda 20 J/m: se ve igual pero estalla.'},
+
+{cat:'ter', art:'tg',
+ q:'¿Qué ocurre cuando un polímero amorfo supera su temperatura de transición vítrea (Tg)?',
+ o:['Pasa de rígido y vítreo a gomoso y flexible','Funde y se vuelve líquido','Se descompone químicamente','Cristaliza'], a:0,
+ e:'En la Tg las cadenas ganan movilidad y el módulo cae uno a tres órdenes de magnitud, pero el material no funde: sigue siendo sólido. La fusión (Tm) solo existe en la fracción cristalina de los semicristalinos. Un plástico rígido trabaja debajo de su Tg; un elastómero trabaja arriba.',
+ d:'Tg del PVC ≈ 80 °C, por eso es rígido a temperatura ambiente. Tg del caucho natural ≈ –70 °C, por eso es elástico. Un o-ring que baja de su Tg se vuelve vidrio y pierde estanqueidad: así falló el sello del Challenger.'},
+
+{cat:'ter', art:'termo',
+ q:'¿Por qué la baquelita de un portalámparas o una resina epoxi no se pueden volver a fundir y moldear?',
+ o:['Porque sus cadenas están unidas por enlaces cruzados covalentes formando una red 3D','Porque su peso molecular es demasiado alto','Porque son 100 % cristalinos','Porque absorben humedad del ambiente'], a:0,
+ e:'En un termorrígido el curado crea enlaces covalentes entre cadenas: toda la pieza queda como una única macromolécula reticulada. Al calentar no puede fluir, así que primero se degrada y carboniza. Un termoplástico tiene cadenas independientes unidas solo por fuerzas secundarias: calienta, fluye y se reprocesa.',
+ d:'Por eso la baquelita sigue reinando en portalámparas y bornes: no fluye con el calor del contacto ni gotea. En contra: es un residuo que no se recicla por fusión.'},
+
+{cat:'ter', art:'termica',
+ q:'Comparada con la de los metales, la conductividad térmica de los polímeros es:',
+ o:['Unas 100 a 1000 veces menor: son aislantes térmicos','Del mismo orden de magnitud','Mayor, por eso se usan en disipadores','Exactamente cero'], a:0,
+ e:'Los polímeros rondan 0,1–0,5 W/m·K contra 200–400 W/m·K del aluminio o el cobre. Sin electrones libres, el calor solo viaja por vibración de las cadenas, que es un mecanismo lento. Eso los hace excelentes aislantes, pero también complica evacuar el calor de una pieza plástica cargada.',
+ d:'Ese mismo dato es el problema en electrotecnia: la aislación es una manta térmica sobre el conductor, y por eso la corriente admisible depende de la temperatura máxima que aguanta el aislante.'},
+
+{cat:'qui', art:'ptfe',
+ q:'El PTFE (teflón) resiste prácticamente a todos los reactivos químicos. ¿Por qué?',
+ o:['El enlace C–F es muy fuerte y los átomos de flúor blindan la cadena carbonada','Porque en realidad es un material cerámico','Porque no contiene carbono','Porque su superficie viene encerada de fábrica'], a:0,
+ e:'El enlace C–F es de los más energéticos de la química orgánica (≈485 kJ/mol) y la envoltura de flúor, muy electronegativo y voluminoso, impide que cualquier reactivo llegue al esqueleto de carbono. Esa misma capa le da su bajísima energía superficial: nada moja ni se adhiere.',
+ d:'Resiste hasta 260 °C en servicio continuo y solo lo atacan metales alcalinos fundidos y el flúor elemental. Su punto débil es mecánico: fluye en frío, así que como junta necesita confinamiento.'},
+
+{cat:'qui', art:'uv',
+ q:'Un caño o un cable de polietileno destinado a la intemperie se fabrica negro. ¿Por qué?',
+ o:['Porque el negro de humo absorbe la radiación UV que rompe las cadenas','Por una norma estética de color','Porque el negro disipa mejor el calor','Porque el pigmento negro es más barato'], a:0,
+ e:'La radiación UV rompe enlaces y genera radicales libres: el polímero se oxida, pierde peso molecular y termina agrietándose y volviéndose frágil. El negro de humo, en un 2 a 2,5 % en masa, absorbe el UV antes de que llegue a la cadena y además captura radicales. Es el estabilizante más efectivo y más barato que existe.',
+ d:'Un PE sin protección se fragiliza en uno o dos años a la intemperie; con negro de humo bien disperso se especifican más de 50 años. Por eso todo cable subterráneo y toda cubierta exterior son negros.'},
+
+{cat:'ele', art:'rigidez',
+ q:'La rigidez dieléctrica de un aislante se expresa en kV/mm. ¿Qué indica?',
+ o:['El campo eléctrico máximo que soporta antes de perforarse','La corriente que puede conducir','Su resistencia mecánica a la tracción','La carga eléctrica que puede almacenar'], a:0,
+ e:'Es el campo que provoca la ruptura del dieléctrico: por encima de ese valor los electrones se aceleran lo suficiente para ionizar el material y se forma un canal conductor que, en un sólido, es un daño permanente. Depende del espesor, la temperatura, la humedad y la frecuencia, así que siempre se compara en condiciones normalizadas.',
+ d:'PE y XLPE 20–40 kV/mm · PVC 14–20 kV/mm · aire apenas 3 kV/mm. Con este valor y un buen margen se calcula el espesor de aislación de un cable de media tensión.'},
+
+{cat:'ele', art:'capacitor',
+ q:'En capacitores de película para corrección del factor de potencia se elige polipropileno. ¿Cuál es la razón principal?',
+ o:['Tiene pérdidas dieléctricas (tan δ) bajísimas y alta rigidez dieléctrica','Es el plástico más barato del mercado','Es el que tiene la mayor constante dieléctrica','Conduce bien a alta frecuencia'], a:0,
+ e:'El PP metalizado combina una tan δ del orden de 10⁻⁴ con rigidez dieléctrica muy alta y films de pocos micrones, así que casi no se calienta bajo tensión alterna permanente. Su constante dieléctrica es baja, εr ≈ 2,2: justamente lo contrario de la opción C. Se gana en pérdidas y en tensión, no en permitividad.',
+ d:'C = εr·ε₀·A/d, así que con εr baja se compensa con film finito y mucha superficie enrollada. Además el PP metalizado es autorregenerativo: ante una perforación el metal se evapora localmente y aísla la falla.'},
+
+{cat:'etc', art:'cable',
+ q:'¿Cuál es la ventaja principal del XLPE (polietileno reticulado) frente al PVC como aislación de cables de potencia?',
+ o:['Mayor temperatura admisible: 90 °C en servicio y 250 °C en cortocircuito','Es más barato de fabricar','Es más flexible para instalar','Es autoextinguible sin ningún aditivo'], a:0,
+ e:'El reticulado convierte al PE termoplástico en un termorrígido: ya no funde ni escurre, así que el conductor puede trabajar a 90 °C en régimen (contra 70 °C del PVC) y aguantar 250 °C durante un cortocircuito. Más temperatura admisible significa más corriente para la misma sección. Además el XLPE tiene menores pérdidas dieléctricas y absorbe menos humedad. El PVC gana en costo y en comportamiento al fuego.',
+ d:'Ese salto de 70 a 90 °C da del orden de 15 a 20 % más de corriente admisible en la misma sección. En contra, el PVC libera HCl al quemarse: por eso en escuelas, hospitales y subterráneos se exigen cables libres de halógenos (LSZH).'},
+
+{cat:'etc', art:'trafo',
+ q:'En un transformador seco encapsulado para tablero de interior, ¿con qué se aísla el bobinado?',
+ o:['Con resina epoxi colada al vacío alrededor de la bobina','Con aceite mineral dentro de una cuba hermética','Con papel impregnado en agua desmineralizada','Con caucho natural vulcanizado'], a:0,
+ e:'El bobinado se encapsula en resina epoxi, un termorrígido, colada al vacío para eliminar burbujas: una burbuja de aire dentro del aislante genera descargas parciales que lo van perforando desde adentro. Al no tener aceite no hay riesgo de derrame ni de incendio por aceite, y el transformador puede ir dentro del edificio junto al tablero. Los de aceite siguen siendo la opción en potencias grandes y a la intemperie.',
+ d:'El aislamiento se clasifica por temperatura: clase B 130 °C, F 155 °C, H 180 °C. Todo el diseño térmico del transformador lo define el polímero, no el cobre.'},
+
+{cat:'etc', art:'conductor',
+ q:'La polianilina, el polipirrol y el poliacetileno conducen electricidad. ¿Qué tienen en su estructura?',
+ o:['Una cadena conjugada de dobles enlaces alternados que, dopada, transporta carga','Partículas de cobre mezcladas en la masa','Agua absorbida que conduce por iones','Enlaces cruzados muy densos'], a:0,
+ e:'La alternancia de enlaces simples y dobles genera una nube de electrones π deslocalizada a lo largo de la cadena. Con el dopado, una oxidación o reducción parcial, aparecen portadores de carga y la conductividad sube muchos órdenes de magnitud hasta acercarse a la de los metales. Es conducción electrónica intrínseca: un plástico con relleno metálico es otra tecnología, un compuesto conductor.',
+ d:'Le dio el Nobel de Química 2000 a Heeger, MacDiarmid y Shirakawa. Hoy aparecen en pantallas OLED, sensores, blindaje electromagnético, protección anticorrosiva y capas semiconductoras de cables.'},
+
+{cat:'pro', art:'extrusion',
+ q:'Caños, perfiles y la aislación continua sobre un conductor se fabrican por:',
+ o:['Extrusión','Inyección','Termoformado','Rotomoldeo'], a:0,
+ e:'En la extrusión un husillo funde y empuja el material a través de una matriz con la forma de la sección, y sale un perfil continuo que se enfría y se corta a medida. Es el único proceso realmente continuo, por eso es el del cableado: el conductor pasa por el cabezal y sale ya aislado. La inyección produce piezas discretas dentro de un molde cerrado.',
+ d:'En un cable de media tensión se hace triple extrusión simultánea: semiconductora interna, XLPE y semiconductora externa salen juntas del mismo cabezal, para que no queden huecos ni impurezas entre capas.'},
+
+{cat:'pro', art:'soplado',
+ q:'Una botella de PET se fabrica por:',
+ o:['Inyección de una preforma y luego soplado con estirado dentro del molde','Extrusión de una lámina y posterior corte','Inyección directa de la botella terminada','Colado por gravedad'], a:0,
+ e:'Primero se inyecta una preforma con forma de tubo de ensayo, con la rosca ya terminada. Después se recalienta y se sopla dentro del molde mientras una varilla la estira: el biorientado alinea las moléculas en dos direcciones y multiplica la resistencia y la barrera al CO₂. Una pieza hueca cerrada no se puede inyectar: no habría forma de extraer el macho del molde.',
+ d:'El biorientado es lo que permite que una botella de 25 gramos aguante 6 bar de presión interna.'}
+];
+
+/* ---------- Modo "¿Qué polímero sos?" ---------- */
+const POLIMEROS = {
+ ptfe:{n:'PTFE',alias:'El Inmutable',emoji:'🛡️',f:'Politetrafluoroetileno · (C₂F₄)ₙ',g:['#00C6FB','#0057E7'],
+   s:{Tenacidad:4,'Resistencia Térmica':9,Flexibilidad:6,'Resistencia Química':10},
+   d:'Nada te afecta. Podés estar en el ambiente más hostil y salir igual que como entraste. Tu problema no es aguantar: es que cedés de a poco cuando la presión no afloja nunca.',
+   fact:'Dato de cátedra: resiste 260 °C continuos y casi todos los reactivos, pero fluye en frío bajo carga constante.'},
+ pc:{n:'POLICARBONATO',alias:'El Escudo',emoji:'🪖',f:'PC · bisfenol A + fosgeno',g:['#F5288F','#7A5CFF'],
+   s:{Tenacidad:10,'Resistencia Térmica':7,Flexibilidad:5,'Resistencia Química':4},
+   d:'Recibís el golpe y no te partís. Sos el que se pone adelante cuando algo se rompe. Eso sí: te rayás con cualquier comentario menor.',
+   fact:'Dato de cátedra: absorbe hasta 30 veces más energía de impacto que el acrílico, pero lo ataca cualquier solvente.'},
+ sil:{n:'SILICONA',alias:'El Zen Elástico',emoji:'🫧',f:'Elastómero de siloxano · (–Si–O–)ₙ',g:['#43E97B','#38B6F9'],
+   s:{Tenacidad:3,'Resistencia Térmica':9,Flexibilidad:10,'Resistencia Química':7},
+   d:'Te estirás hasta donde haga falta y volvés a tu forma original. Frío, calor, lo que sea. No sos el más fuerte, pero seguís funcionando cuando todo se pone raro.',
+   fact:'Dato de cátedra: trabaja de –60 °C a +200 °C sin volverse vidrio ni derretirse, gracias al enlace Si–O.'},
+ bak:{n:'BAQUELITA',alias:'El Clásico Inquebrantable',emoji:'🕰️',f:'Resina fenol-formaldehído · termorrígida',g:['#E0913F','#5B2C0E'],
+   s:{Tenacidad:5,'Resistencia Térmica':8,Flexibilidad:1,'Resistencia Química':7},
+   d:'Sos de una sola pieza. Literal: una única macromolécula reticulada. Confiable, firme, no te derretís bajo presión. No te reformulás, y está perfecto así.',
+   fact:'Dato de cátedra: fue el primer plástico totalmente sintético de la historia (1907) y sigue en portalámparas y bornes.'},
+ xlpe:{n:'XLPE',alias:'El Que Aguanta la Corriente',emoji:'⚡',f:'Polietileno reticulado · cables de potencia',g:['#FF6A00','#EE0979'],
+   s:{Tenacidad:7,'Resistencia Térmica':8,Flexibilidad:6,'Resistencia Química':7},
+   d:'Trabajás caliente, en silencio, y todo el sistema depende de que no falles. Nadie te ve, pero si te caés se cae todo el tablero.',
+   fact:'Dato de cátedra: 90 °C en servicio permanente y 250 °C durante un cortocircuito, con 20–40 kV/mm de rigidez dieléctrica.'},
+ kev:{n:'KEVLAR',alias:'La Armadura',emoji:'🥷',f:'Poliamida aromática (aramida)',g:['#3C1053','#C0348E'],
+   s:{Tenacidad:10,'Resistencia Térmica':8,Flexibilidad:4,'Resistencia Química':6},
+   d:'Liviano y prácticamente irrompible a la tracción. Sos la persona que otros ponen entre ellos y el peligro, sin hacer ruido al respecto.',
+   fact:'Dato de cátedra: a igual peso resiste unas 5 veces más que el acero, por el ordenamiento y los puentes de hidrógeno entre cadenas.'},
+ nyl:{n:'NYLON',alias:'El Multiuso',emoji:'🔩',f:'Poliamida PA6 / PA66',g:['#11998E','#38EF7D'],
+   s:{Tenacidad:8,'Resistencia Térmica':6,Flexibilidad:7,'Resistencia Química':5},
+   d:'Servís para todo: engranaje, buje, cuerda, precinto, ropa. Siempre resolvés. El detalle es que absorbés la humedad del ambiente, o sea que te llevás puesto el clima emocional del grupo.',
+   fact:'Dato de cátedra: puede absorber hasta 2,5 % de agua, y con eso le cambian la dureza y hasta las medidas de la pieza.'},
+ abs:{n:'ABS',alias:'El Creativo',emoji:'🎨',f:'Acrilonitrilo-butadieno-estireno',g:['#FC466B','#3F5EFB'],
+   s:{Tenacidad:7,'Resistencia Térmica':4,Flexibilidad:6,'Resistencia Química':4},
+   d:'Fácil de moldear, buena terminación, color. Sos el que hace que las cosas se vean bien y además funcionen. No te llevás bien con el sol: a la intemperie te apagás.',
+   fact:'Dato de cátedra: es el plástico de los LEGO y de la impresión 3D FDM; su punto débil es la radiación UV.'}
+};
+
+const QUIZ = [
+ {q:'Viernes 23 h. Escriben del grupo del TP: falta absolutamente todo.',
+  o:[['Ya está, lo hago yo y salimos a flote',{pc:2,kev:1}],
+     ['Mando un audio de 4 minutos y organizo a todos',{nyl:2,abs:1}],
+     ['Contesto mañana, nada me altera',{ptfe:2,bak:1}],
+     ['Improviso algo creativo a las 3 de la mañana',{abs:2,sil:1}]]},
+ {q:'Elegí tu superpoder ideal.',
+  o:[['Que nada te manche ni se te pegue',{ptfe:2,sil:1}],
+     ['Aguantar cualquier golpe sin partirte',{pc:2,kev:1}],
+     ['Estirarte muchísimo y volver a tu forma',{sil:2,nyl:1}],
+     ['Trabajar al rojo vivo sin quejarte',{xlpe:2,bak:1}]]},
+ {q:'En un asado, ¿qué rol te toca siempre?',
+  o:[['El que enciende el fuego y controla la temperatura',{xlpe:2,bak:1}],
+     ['El que trae algo raro que nadie probó',{abs:2}],
+     ['El que ya estaba y va a seguir estando',{bak:2,ptfe:1}],
+     ['El que resuelve todo con lo que hay a mano',{nyl:2,pc:1}]]},
+ {q:'Tu forma de estudiar para el parcial.',
+  o:[['Resumen prolijo, método y cronograma',{nyl:2,bak:1}],
+     ['La noche anterior, a presión pura',{pc:2,abs:1}],
+     ['Con música, colores y mapas mentales',{abs:2,sil:1}],
+     ['Constante, sin apuro, todo el cuatrimestre',{ptfe:2,xlpe:1}]]},
+ {q:'Te critican injustamente delante de todos.',
+  o:[['Me resbala, sigo con lo mío',{ptfe:2,sil:1}],
+     ['Me la banco en silencio y sigo',{kev:2,pc:1}],
+     ['Contesto con datos y cierro el tema',{xlpe:2,nyl:1}],
+     ['Me quedo pensándolo tres días',{bak:2}]]},
+ {q:'Elegí dónde te sentís en tu salsa.',
+  o:[['Un taller lleno de herramientas',{nyl:2,pc:1}],
+     ['Una sala de máquinas o una subestación',{xlpe:2,bak:1}],
+     ['Un laboratorio con reactivos',{ptfe:2}],
+     ['Un estudio de diseño',{abs:2,sil:1}]]},
+ {q:'Tu relación con el cambio.',
+  o:[['Me adapto sin perder mi forma',{sil:2,nyl:1}],
+     ['Prefiero lo probado, lo que ya funciona',{bak:2,ptfe:1}],
+     ['Cambio solo si hay una razón técnica',{xlpe:2,pc:1}],
+     ['Yo soy el cambio',{abs:2,kev:1}]]}
+];
+
+/* ============================================================
+   LABORATORIO DE COMPUESTOS — juego de formulación
+   Mezclás los ingredientes en la proporción correcta y después
+   elegís la temperatura de proceso. Te pasás y se carboniza.
+   ============================================================ */
+
+const NIVELES = [
+{
+  id:1,
+  titulo:'Carcasa de tablero eléctrico',
+  pedido:'El tablero de una escuela necesita una carcasa RÍGIDA, que aguante un golpe sin partirse y que NO propague la llama.',
+  proceso:'Inyección',
+  maquina:'INYECTORA',
+  minMatch:85,
+  ing:[
+    {n:'Policarbonato (PC)', rol:'La matriz. Es el que aguanta el golpe sin romperse.', c:'#00C6FB', t:50},
+    {n:'ABS', rol:'Mejora el moldeo y baja el costo sin perder resistencia.', c:'#FF9A3C', t:30},
+    {n:'Retardante de llama', rol:'Corta la combustión. En exceso fragiliza la pieza.', c:'#A78BFA', t:20}
+  ],
+  props:['Rigidez','Tenacidad','Autoextinción','Moldeabilidad'],
+  calc(f){
+    const pc=f[0], abs=f[1], fr=f[2];
+    let rig=10*(0.95*pc+0.65*abs+0.80*fr);
+    let ten=10*(1.00*pc+0.70*abs+0.10*fr);
+    if(fr>0.25) ten-=(fr-0.25)*30;
+    if(pc<0.35) ten-=(0.35-pc)*20;
+    let fue=fr*50;
+    let mol=10*(0.40*pc+0.95*abs+0.35*fr);
+    return [rig,ten,fue,mol];
+  },
+  diag(f){
+    const pc=f[0], abs=f[1], fr=f[2];
+    if(fr>0.30) return 'Te pasaste de retardante ('+Math.round(fr*100)+' %). Actúa como una carga: la pieza queda rígida pero se desmenuza con el primer golpe. Arriba del 25 % la tenacidad se cae a pique.';
+    if(fr<0.12) return 'Con solo '+Math.round(fr*100)+' % de retardante la carcasa prende y propaga la llama. En un tablero eso es inadmisible.';
+    if(pc<0.35) return 'Poco policarbonato ('+Math.round(pc*100)+' %). El PC es la matriz que absorbe el impacto: sin él la carcasa se parte al primer golpe.';
+    if(pc>0.65) return 'Demasiado PC ('+Math.round(pc*100)+' %). Es tenaz, pero muy viscoso: cuesta llenar el molde y la pieza sale con tensiones internas.';
+    if(abs<0.18) return 'Falta ABS. Sin él la mezcla es cara y difícil de moldear.';
+    return 'La proporción no llega a la especificación. Acordate: la matriz manda, el aditivo acompaña.';
+  },
+  otro(f){
+    const pc=f[0], abs=f[1], fr=f[2];
+    if(fr>0.30) return {n:'Compuesto sobrecargado', d:'Con tanto retardante la mezcla se comporta como una carga mineral: sale una pieza rígida y quebradiza, del estilo de una baquelita barata. Apaga la llama, pero se parte de un golpe.'};
+    if(pc>0.62) return {n:'PC casi puro', d:'Te salió un policarbonato con aditivos. Tenacísimo y caro, pero tan viscoso que la pieza queda con líneas de unión y tensiones internas, y encima propaga la llama.'};
+    if(abs>0.45) return {n:'ABS con aditivos', d:'Barato y hermoso de moldear, pero perdiste la tenacidad del PC y sin retardante suficiente la carcasa arde. No pasa el ensayo de llama.'};
+    if(fr<0.12) return {n:'Aleación PC/ABS sin protección', d:'Mecánicamente está muy bien: es la aleación de los cascos. El problema es que sin retardante no se puede usar en un tablero.'};
+    return {n:'Aleación fuera de especificación', d:'Salió un PC/ABS distinto al pedido: cumple algunas propiedades, pero no las tres que exigía el pliego.'};
+  },
+  temps:[
+    {v:190, r:'baja', txt:'A 190 °C el PC ni siquiera fluye. La pieza sale incompleta, con líneas frías donde se junta el material, y se parte con la mano.'},
+    {v:260, r:'ok',   txt:'A 260 °C el PC/ABS fluye parejo, llena todo el molde y no se degrada. Esa es la ventana de proceso.'},
+    {v:330, r:'alta', txt:'Arriba de 300 °C el policarbonato se degrada: se decolora, larga gases y la pieza sale quemada y frágil.'}
+  ]
+},
+{
+  id:2,
+  titulo:'Cable libre de halógenos (LSZH)',
+  pedido:'Cableado para un hospital. Tiene que ser FLEXIBLE para instalarlo y, si hay incendio, no puede largar humo tóxico ni ácido.',
+  proceso:'Extrusión',
+  maquina:'EXTRUSORA',
+  minMatch:82,
+  ing:[
+    {n:'Copolímero EVA', rol:'La matriz flexible. Es lo que hace que el cable se doble.', c:'#06D6A0', t:50},
+    {n:'Hidróxido de aluminio (ATH)', rol:'Al calentarse libera agua y apaga la llama. Reemplaza al cloro del PVC.', c:'#CBD5E1', t:30},
+    {n:'Plastificante', rol:'Ablanda todavía más la mezcla. De más, la deja floja.', c:'#FFB020', t:15},
+    {n:'Antioxidante', rol:'Frena el envejecimiento térmico. Va poco y es clave.', c:'#FF6B9D', t:5}
+  ],
+  props:['Flexibilidad','Retardo de llama','Resistencia mecánica','Estabilidad'],
+  calc(f){
+    const eva=f[0], ath=f[1], pl=f[2], ao=f[3];
+    let flex=10*(0.85*eva+0.05*ath+1.60*pl);
+    let fue=ath*28;
+    let mec=10*(1.00*eva+0.15*ath+0.20*pl+0.10*ao);
+    if(ath>0.35) mec-=(ath-0.35)*40;
+    if(pl>0.20) mec-=(pl-0.20)*35;
+    let est=ao*140+eva*2;
+    return [flex,fue,mec,est];
+  },
+  diag(f){
+    const eva=f[0], ath=f[1], pl=f[2], ao=f[3];
+    if(ath>0.40) return 'Demasiado ATH ('+Math.round(ath*100)+' %). Apaga bien la llama, pero es un mineral: el cable queda duro, se agrieta al doblarlo y no se puede instalar.';
+    if(ath<0.20) return 'Poco ATH ('+Math.round(ath*100)+' %). Sin carga mineral suficiente el cable arde y deja de ser libre de halógenos, que es justamente lo que pide el hospital.';
+    if(eva<0.38) return 'Falta EVA ('+Math.round(eva*100)+' %). Es la matriz: sin ella no hay nada que sostenga la carga y el compuesto se desarma.';
+    if(pl>0.22) return 'Exceso de plastificante ('+Math.round(pl*100)+' %). El cable queda blando pero pierde resistencia mecánica, y con el tiempo el plastificante migra y se endurece igual.';
+    if(ao<0.03) return 'Sin antioxidante suficiente. Va poco, pero si falta el compuesto envejece y se fisura en pocos años.';
+    if(ao>0.10) return 'Demasiado antioxidante. Es caro y arriba de cierto punto no aporta nada: exuda a la superficie.';
+    return 'La formulación no cumple. En un LSZH el equilibrio matriz–carga mineral es todo.';
+  },
+  otro(f){
+    const eva=f[0], ath=f[1], pl=f[2], ao=f[3];
+    if(ath>0.42) return {n:'Compuesto mineralizado', d:'Tanta carga mineral apaga muy bien la llama, pero el cable queda rígido como una manguera vieja: se agrieta al primer doblez y el instalador te lo devuelve.'};
+    if(ath<0.20) return {n:'EVA plastificado', d:'Flexible y suave, un placer de instalar… pero arde. Dejó de ser libre de halógenos, que es exactamente lo que pedía el hospital.'};
+    if(pl>0.25) return {n:'EVA blando', d:'Se instala solo de lo flexible que quedó, pero perdió resistencia mecánica y con los años el plastificante migra: el cable se endurece igual y se fisura.'};
+    if(ao<0.03) return {n:'LSZH sin estabilizar', d:'La formulación mecánica está bien, pero sin antioxidante suficiente el compuesto envejece con el calor del conductor y se fisura en pocos años.'};
+    return {n:'Compuesto LSZH fuera de norma', d:'Salió un compuesto usable, pero el equilibrio matriz-carga no llega a lo que pide la especificación del hospital.'};
+  },
+  temps:[
+    {v:120, r:'baja', txt:'A 120 °C el EVA no plastifica bien. La aislación sale rugosa, con grumos, y no se adhiere al conductor.'},
+    {v:165, r:'ok',   txt:'165 °C: el EVA fluye, envuelve la carga mineral y el ATH todavía no se descompone. Ventana justa.'},
+    {v:230, r:'alta', txt:'Arriba de 200 °C el hidróxido de aluminio se descompone DENTRO de la extrusora: libera agua, la aislación sale con burbujas y quemada.'}
+  ]
+},
+{
+  id:3,
+  titulo:'Bobinado de transformador seco',
+  pedido:'Encapsular la bobina de un transformador de tablero. Tiene que ser RÍGIDO, clase térmica F (155 °C) y sobre todo SIN BURBUJAS: una burbuja genera descargas parciales.',
+  proceso:'Curado',
+  maquina:'HORNO DE CURADO',
+  minMatch:82,
+  ing:[
+    {n:'Resina epoxi', rol:'La matriz termorrígida. Después de curar no vuelve atrás.', c:'#7A5CFF', t:45},
+    {n:'Endurecedor anhídrido', rol:'Arma los enlaces cruzados. La relación con la resina es sagrada.', c:'#06D6A0', t:25},
+    {n:'Carga de cuarzo', rol:'Baja la contracción y el calor de curado. Da estabilidad dimensional.', c:'#C9D3E8', t:20},
+    {n:'Acelerador', rol:'Apura la reacción. De más, el curado se dispara.', c:'#FF4D6D', t:5},
+    {n:'Silano', rol:'Pega la carga a la resina. Sin él la carga queda suelta adentro.', c:'#FFB020', t:5}
+  ],
+  props:['Rigidez','Clase térmica','Sin burbujas','Estabilidad dimensional'],
+  calc(f){
+    const ep=f[0], en=f[1], ca=f[2], ac=f[3], si=f[4];
+    const ratio = en>0.001 ? ep/en : 99;
+    const cura = Math.max(0, 10-Math.abs(ratio-1.8)*6);
+    let rig=10*(0.80*ep+0.40*en+1.20*ca)*(cura/10);
+    let ter=(cura/10)*(6+ca*15+si*20);
+    let bur=10-Math.abs(ca-0.20)*25-Math.max(0,ac-0.08)*60-Math.max(0,0.02-si)*80;
+    let dim=3+ca*30+si*20;
+    return [rig,ter,bur,dim];
+  },
+  diag(f){
+    const ep=f[0], en=f[1], ca=f[2], ac=f[3], si=f[4];
+    const ratio = en>0.001 ? ep/en : 99;
+    if(ratio>2.6) return 'Falta endurecedor: quedaron '+ratio.toFixed(1)+' partes de resina por 1 de endurecedor. La red no se forma entera y el encapsulado queda blando y pegajoso.';
+    if(ratio<1.2) return 'Sobra endurecedor: '+ratio.toFixed(1)+' a 1. El anhídrido que no reacciona queda libre adentro, absorbe humedad y baja la rigidez dieléctrica.';
+    if(ca>0.32) return 'Demasiado cuarzo ('+Math.round(ca*100)+' %). La mezcla se vuelve una pasta espesa que atrapa aire: burbujas, y donde hay burbuja hay descarga parcial.';
+    if(ca<0.10) return 'Poca carga ('+Math.round(ca*100)+' %). Sin cuarzo la resina se contrae al curar y se agrieta contra el cobre.';
+    if(ac>0.10) return 'Demasiado acelerador ('+Math.round(ac*100)+' %). La reacción se dispara, sube sola de temperatura y la pieza se raja desde adentro.';
+    if(si<0.02) return 'Sin silano la carga de cuarzo no se pega a la resina: quedan microhuecos en cada grano y por ahí arranca la falla.';
+    return 'La formulación no cumple. En un termorrígido la relación resina–endurecedor define todo.';
+  },
+  otro(f){
+    const ep=f[0], en=f[1], ca=f[2], ac=f[3], si=f[4];
+    const ratio = en>0.001 ? ep/en : 99;
+    if(ratio>2.6) return {n:'Epoxi sin curar del todo', d:'Faltó endurecedor, así que la red quedó incompleta: el encapsulado está blando y pegajoso, absorbe humedad y no aguanta la clase térmica.'};
+    if(ratio<1.2) return {n:'Epoxi con exceso de anhídrido', d:'Sobró endurecedor. El que no reaccionó queda suelto adentro, atrae humedad y te baja la rigidez dieléctrica justo donde no querés.'};
+    if(ca>0.32) return {n:'Mortero epoxi', d:'Con tanto cuarzo la mezcla es una pasta espesa que atrapa aire. Es rígido y estable, sí, pero lleno de burbujas: descargas parciales garantizadas.'};
+    if(ca<0.10) return {n:'Resina colada pura', d:'Sin carga la resina cura y se contrae. Al enfriar se agrieta contra el cobre del bobinado y por esa fisura arranca la falla.'};
+    return {n:'Encapsulado fuera de especificación', d:'La pieza curó, pero la formulación no da la combinación de rigidez, clase térmica y ausencia de burbujas que pedía el transformador.'};
+  },
+  temps:[
+    {v:80,  r:'baja', txt:'A 80 °C el epoxi no cura del todo. La bobina queda pegajosa, con puntos blandos, y no aguanta la clase térmica F.'},
+    {v:140, r:'ok',   txt:'140 °C: la red se forma completa y pareja, sin exotermia descontrolada. Curado de manual.'},
+    {v:210, r:'alta', txt:'A 210 °C el curado se dispara. La exotermia parte la resina desde adentro y la carboniza contra el bobinado.'}
+  ]
+}
+];
+
+/* ============================================================
+   ESCENA ANIMADA (canvas)
+   ============================================================ */
+const Escena = (function(){
+  const VW=900, VH=430;
+  let cv=null, cx=null, raf=null, t=0, scale=1;
+  let estado='idle', mezcla=null, tempPct=0, tempCol='#8A93C4', shake=0, flash=0;
+  let parts=[], manchas=[], humo=[], pieza=null, cara='normal', brazo=0, maqTxt='MÁQUINA';
+
+  function init(){
+    cv=document.getElementById('labCanvas'); if(!cv) return;
+    cx=cv.getContext('2d'); resize();
+    addEventListener('resize',resize);
+  }
+  function resize(){
+    if(!cv) return;
+    const w=cv.clientWidth||cv.parentNode.clientWidth||900;
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    scale=w/VW;
+    cv.width=Math.round(w*dpr); cv.height=Math.round(w*(VH/VW)*dpr);
+    cv.style.height=(w*VH/VW)+'px';
+    cx.setTransform(dpr*scale,0,0,dpr*scale,0,0);
+  }
+  function start(){ if(!raf) loop(); }
+  function stop(){ if(raf){ cancelAnimationFrame(raf); raf=null; } }
+
+  function setMezcla(m){ mezcla=m; }
+  function setMaquina(txt){ maqTxt=txt||'MÁQUINA'; }
+  function setTemp(p,c){ tempPct=p; tempCol=c; }
+  function setEstado(e){
+    estado=e;
+    if(e==='ok'){ cara='feliz'; brazo=1; }
+    else if(e==='frio'){ cara='triste'; brazo=0; }
+    else if(e==='boom'){ cara='sucia'; brazo=0; boom(); }
+    else { cara='normal'; brazo=0; }
+  }
+  function limpiar(){ manchas=[]; parts=[]; humo=[]; pieza=null; cara='normal'; brazo=0; estado='idle'; tempPct=0; }
+
+  function boom(){
+    shake=28; flash=1;
+    for(let i=0;i<150;i++){
+      const a=-Math.PI/2+(Math.random()-0.5)*2.6, sp=3+Math.random()*12;
+      parts.push({x:680,y:205,vx:Math.cos(a)*sp+3.4,vy:Math.sin(a)*sp,r:2+Math.random()*7,life:60+Math.random()*45});
+    }
+    for(let i=0;i<28;i++) humo.push({x:670+(Math.random()-.5)*110,y:205,r:12+Math.random()*28,vy:-0.5-Math.random()*1.4,life:90+Math.random()*70,a:.5});
+    // manchas encima del operario
+    for(let i=0;i<10;i++) manchas.push({x:790+(Math.random()-.5)*54,y:198+Math.random()*24,r:4+Math.random()*8,d:i*2});   // cara y casco
+    for(let i=0;i<14;i++) manchas.push({x:790+(Math.random()-.5)*76,y:236+Math.random()*80,r:5+Math.random()*12,d:6+i*2}); // cuerpo
+    for(let i=0;i<6;i++)  manchas.push({x:790+(Math.random()-.5)*70,y:316+Math.random()*40,r:4+Math.random()*9,d:16+i*2}); // piernas
+    // manchas en la maquina y el piso
+    for(let i=0;i<10;i++) manchas.push({x:470+Math.random()*220,y:150+Math.random()*130,r:5+Math.random()*14,d:i*2});
+    for(let i=0;i<10;i++) manchas.push({x:450+Math.random()*400,y:366+Math.random()*20,r:6+Math.random()*16,d:20+i*2});
+  }
+
+  function rr(x,y,w,h,r){ cx.beginPath(); cx.moveTo(x+r,y); cx.arcTo(x+w,y,x+w,y+h,r);
+    cx.arcTo(x+w,y+h,x,y+h,r); cx.arcTo(x,y+h,x,y,r); cx.arcTo(x,y,x+w,y,r); cx.closePath(); }
+
+  function dib(){
+    const css=getComputedStyle(document.documentElement);
+    const ink=css.getPropertyValue('--ink').trim()||'#151B3B';
+    const oscuro=document.documentElement.getAttribute('data-theme')==='dark' ||
+      (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+    const piso=oscuro?'rgba(255,255,255,.10)':'rgba(21,27,59,.10)';
+    const metal1=oscuro?'#3A4370':'#C6CEE4', metal2=oscuro?'#242B52':'#9BA6C4';
+
+    cx.clearRect(0,0,VW,VH);
+    cx.save();
+    if(shake>0){ cx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake); shake*=0.88; if(shake<0.4) shake=0; }
+
+    // piso
+    cx.fillStyle=piso; rr(20,362,860,14,7); cx.fill();
+
+    /* ---------- MEZCLADORA ---------- */
+    const tx=60, ty=70, tw=180, th=280;
+    cx.fillStyle=oscuro?'rgba(255,255,255,.06)':'rgba(255,255,255,.55)';
+    rr(tx,ty,tw,th,26); cx.fill();
+    cx.save(); rr(tx+7,ty+7,tw-14,th-14,20); cx.clip();
+    if(mezcla){
+      let acc=0;
+      const inner=th-14, base=ty+7+inner;
+      mezcla.forEach(m=>{
+        const hgt=inner*m.f;
+        if(hgt<=0) return;
+        const y0=base-acc-hgt;
+        cx.fillStyle=m.c; cx.globalAlpha=.92;
+        cx.beginPath();
+        cx.moveTo(tx+7,y0+Math.sin(t/22+acc/30)*3);
+        for(let x=0;x<=tw-14;x+=10) cx.lineTo(tx+7+x,y0+Math.sin(t/22+x/34+acc/30)*3);
+        cx.lineTo(tx+tw-7,base-acc); cx.lineTo(tx+7,base-acc); cx.closePath(); cx.fill();
+        cx.globalAlpha=1; acc+=hgt;
+      });
+    }
+    cx.restore();
+    cx.strokeStyle=metal2; cx.lineWidth=4; rr(tx,ty,tw,th,26); cx.stroke();
+    // paleta agitadora
+    cx.strokeStyle=metal2; cx.lineWidth=7; cx.lineCap='round';
+    cx.beginPath(); cx.moveTo(tx+tw/2,ty-26); cx.lineTo(tx+tw/2,ty+th-70); cx.stroke();
+    cx.save(); cx.translate(tx+tw/2,ty+th-70);
+    const sp=Math.cos(t/9)*0.9;
+    cx.beginPath(); cx.moveTo(-34*Math.cos(sp),8); cx.lineTo(34*Math.cos(sp),8); cx.stroke();
+    cx.restore();
+    cx.fillStyle=metal1; rr(tx+tw/2-30,ty-42,60,20,8); cx.fill();
+    cx.fillStyle=ink; cx.globalAlpha=.6; cx.font='800 15px Nunito, system-ui, sans-serif'; cx.textAlign='center';
+    cx.fillText('MEZCLADORA',tx+tw/2,404); cx.globalAlpha=1;
+
+    /* ---------- CAÑO ---------- */
+    cx.strokeStyle=metal2; cx.lineWidth=13; cx.lineCap='round';
+    cx.beginPath(); cx.moveTo(tx+tw+4,150); cx.lineTo(420,150); cx.stroke();
+    cx.fillStyle=metal2;
+    cx.beginPath(); cx.moveTo(424,150); cx.lineTo(404,140); cx.lineTo(404,160); cx.fill();
+
+    /* ---------- MÁQUINA ---------- */
+    const mx=430, my=120, mw=250, mh=170;
+    const vib = estado==='calentando' ? Math.sin(t/1.6)*1.8*(0.3+tempPct) : 0;
+    cx.save(); cx.translate(vib,0);
+    cx.fillStyle=metal1; rr(mx,my,mw,mh,20); cx.fill();
+    cx.strokeStyle=metal2; cx.lineWidth=4; rr(mx,my,mw,mh,20); cx.stroke();
+    // tolva
+    cx.fillStyle=metal2; cx.beginPath();
+    cx.moveTo(mx+30,my); cx.lineTo(mx+50,my-52); cx.lineTo(mx+130,my-52); cx.lineTo(mx+110,my); cx.closePath(); cx.fill();
+    // cámara caliente
+    const g=cx.createLinearGradient(mx+24,0,mx+mw-24,0);
+    g.addColorStop(0,tempCol); g.addColorStop(1,tempCol);
+    cx.globalAlpha=.28+0.6*tempPct; cx.fillStyle=g; rr(mx+24,my+58,mw-48,64,16); cx.fill(); cx.globalAlpha=1;
+    cx.strokeStyle=tempCol; cx.lineWidth=3; rr(mx+24,my+58,mw-48,64,16); cx.stroke();
+    if(tempPct>0.05){
+      cx.save(); cx.shadowColor=tempCol; cx.shadowBlur=30*tempPct;
+      cx.strokeStyle=tempCol; cx.lineWidth=3; rr(mx+24,my+58,mw-48,64,16); cx.stroke(); cx.restore();
+    }
+    // bandas calefactoras
+    cx.fillStyle=metal2;
+    for(let i=0;i<4;i++) rr(mx+40+i*52,my+40,26,12,5), cx.fill();
+    // display
+    cx.fillStyle=oscuro?'#0B0E22':'#151B3B'; rr(mx+mw-96,my+14,80,30,8); cx.fill();
+    cx.fillStyle=tempCol; cx.font='800 19px ui-monospace, Menlo, monospace'; cx.textAlign='center';
+    cx.fillText(estado==='idle'?'--':(Math.round(tempPct*400)+'°'), mx+mw-56, my+36);
+    // boquilla
+    cx.fillStyle=metal2; rr(mx+mw-6,my+82,36,26,6); cx.fill();
+    cx.restore();
+
+    cx.fillStyle=ink; cx.globalAlpha=.6; cx.font='800 15px Nunito, system-ui, sans-serif'; cx.textAlign='center';
+    cx.fillText(maqTxt, mx+mw/2, 404); cx.globalAlpha=1;
+
+    /* ---------- PIEZA ---------- */
+    if(pieza){
+      const px=706, py=286;
+      if(pieza.tipo==='ok'){
+        cx.fillStyle=pieza.c; rr(px-42,py-28,84,54,12); cx.fill();
+        cx.strokeStyle='rgba(255,255,255,.6)'; cx.lineWidth=3; rr(px-42,py-28,84,54,12); cx.stroke();
+        cx.save(); cx.globalAlpha=.35+Math.sin(t/12)*.2; cx.shadowColor=pieza.c; cx.shadowBlur=26;
+        rr(px-42,py-28,84,54,12); cx.stroke(); cx.restore();
+      }else if(pieza.tipo==='frio'){
+        cx.fillStyle='#8A93C4'; rr(px-42,py-28,84,54,12); cx.fill();
+        cx.strokeStyle='#5F6982'; cx.lineWidth=4; cx.lineCap='round';
+        cx.beginPath(); cx.moveTo(px-16,py-28); cx.lineTo(px-4,py-4); cx.lineTo(px-20,py+6); cx.lineTo(px-8,py+26); cx.stroke();
+        cx.beginPath(); cx.moveTo(px+18,py-28); cx.lineTo(px+8,py+2); cx.lineTo(px+24,py+26); cx.stroke();
+      }else{
+        cx.fillStyle='#231A16'; rr(px-42,py-28,84,54,12); cx.fill();
+      }
+      if(pieza.label){
+        cx.fillStyle=pieza.tipo==='ok'?'#059B75':'#E23D5B';
+        cx.font='800 13px Nunito, system-ui, sans-serif'; cx.textAlign='center';
+        cx.fillText(pieza.label, px, py+46);
+      }
+    }
+
+    /* ---------- OPERARIO ---------- */
+    const ox=790, feet=360;
+    const bob=Math.sin(t/26)*2.5;
+    const alza = brazo? Math.abs(Math.sin(t/9))*16 : 0;
+    // piernas
+    cx.strokeStyle='#3B4470'; cx.lineWidth=13; cx.lineCap='round';
+    cx.beginPath(); cx.moveTo(ox-13,feet-52); cx.lineTo(ox-15,feet); cx.stroke();
+    cx.beginPath(); cx.moveTo(ox+13,feet-52); cx.lineTo(ox+15,feet); cx.stroke();
+    // cuerpo
+    cx.fillStyle='#2F6BE0'; rr(ox-27,feet-124+bob,54,76,20); cx.fill();
+    cx.fillStyle='#FFC24D'; rr(ox-27,feet-110+bob,54,12,4); cx.fill();
+    // brazos
+    cx.strokeStyle='#2F6BE0'; cx.lineWidth=12;
+    cx.beginPath(); cx.moveTo(ox-24,feet-112+bob); cx.lineTo(ox-46,feet-78-alza+bob); cx.stroke();
+    cx.beginPath(); cx.moveTo(ox+24,feet-112+bob); cx.lineTo(ox+46,feet-78-alza+bob); cx.stroke();
+    cx.fillStyle='#F6C9A0';
+    cx.beginPath(); cx.arc(ox-46,feet-78-alza+bob,7,0,6.3); cx.fill();
+    cx.beginPath(); cx.arc(ox+46,feet-78-alza+bob,7,0,6.3); cx.fill();
+    // cabeza
+    const hy=feet-152+bob;
+    cx.fillStyle='#F6C9A0'; cx.beginPath(); cx.arc(ox,hy,27,0,6.3); cx.fill();
+    // casco
+    cx.fillStyle='#FFB020'; cx.beginPath(); cx.arc(ox,hy-4,28,Math.PI,0); cx.fill();
+    rr(ox-36,hy-8,72,10,5); cx.fill();
+    // antiparras
+    cx.fillStyle='rgba(120,200,255,.65)'; rr(ox-22,hy-4,44,16,8); cx.fill();
+    cx.strokeStyle='#4A5478'; cx.lineWidth=2.5; rr(ox-22,hy-4,44,16,8); cx.stroke();
+    // ojos
+    cx.strokeStyle='#151B3B'; cx.lineWidth=3; cx.lineCap='round';
+    if(cara==='feliz'){
+      cx.beginPath(); cx.arc(ox-10,hy+5,5,Math.PI,0); cx.stroke();
+      cx.beginPath(); cx.arc(ox+10,hy+5,5,Math.PI,0); cx.stroke();
+    }else if(cara==='sucia'||cara==='triste'){
+      cx.beginPath(); cx.moveTo(ox-14,hy+0); cx.lineTo(ox-6,hy+8); cx.moveTo(ox-6,hy+0); cx.lineTo(ox-14,hy+8); cx.stroke();
+      cx.beginPath(); cx.moveTo(ox+6,hy+0); cx.lineTo(ox+14,hy+8); cx.moveTo(ox+14,hy+0); cx.lineTo(ox+6,hy+8); cx.stroke();
+    }else{
+      cx.fillStyle='#151B3B';
+      cx.beginPath(); cx.arc(ox-10,hy+4,3.4,0,6.3); cx.fill();
+      cx.beginPath(); cx.arc(ox+10,hy+4,3.4,0,6.3); cx.fill();
+    }
+    // boca
+    cx.strokeStyle='#B4553C'; cx.lineWidth=3;
+    cx.beginPath();
+    if(cara==='feliz') cx.arc(ox,hy+12,9,0.15,Math.PI-0.15);
+    else if(cara==='triste'||cara==='sucia') cx.arc(ox,hy+22,8,Math.PI+0.2,-0.2);
+    else cx.arc(ox,hy+14,6,0.3,Math.PI-0.3);
+    cx.stroke();
+
+    /* ---------- MANCHAS ---------- */
+    manchas.forEach(m=>{
+      if(m.d>0){ m.d-=1; return; }
+      cx.fillStyle='#15100E'; cx.globalAlpha=.92;
+      cx.beginPath(); cx.ellipse(m.x,m.y,m.r,m.r*0.82,m.r,0,6.3); cx.fill();
+      cx.beginPath(); cx.arc(m.x+m.r*1.1,m.y+m.r*0.5,m.r*0.32,0,6.3); cx.fill();
+      cx.globalAlpha=1;
+    });
+
+    /* ---------- HUMO Y PARTÍCULAS ---------- */
+    for(let i=humo.length-1;i>=0;i--){
+      const h=humo[i]; h.y+=h.vy; h.r+=0.35; h.life--; h.a*=0.985;
+      if(h.life<0){ humo.splice(i,1); continue; }
+      cx.fillStyle='rgba(40,36,34,'+(h.a*Math.min(1,h.life/50))+')';
+      cx.beginPath(); cx.arc(h.x,h.y,h.r,0,6.3); cx.fill();
+    }
+    for(let i=parts.length-1;i>=0;i--){
+      const p=parts[i]; p.vy+=0.42; p.x+=p.vx; p.y+=p.vy; p.life--;
+      if(p.life<0||p.y>420){ parts.splice(i,1); continue; }
+      cx.fillStyle='#15100E'; cx.globalAlpha=Math.min(1,p.life/25);
+      cx.beginPath(); cx.arc(p.x,p.y,p.r,0,6.3); cx.fill(); cx.globalAlpha=1;
+    }
+    if(flash>0){ cx.fillStyle='rgba(255,170,60,'+(flash*0.5)+')'; cx.fillRect(0,0,VW,VH); flash-=0.06; }
+
+    cx.restore();
+  }
+
+  function loop(){ t++; if(cx) dib(); raf=requestAnimationFrame(loop); }
+  return {init,start,stop,resize,setMezcla,setMaquina,setTemp,setEstado,limpiar,
+    setPieza(p){ pieza=p; }};
+})();
+
+/* ============================================================
+   LÓGICA DEL JUEGO — contrarreloj
+   30 s leer el pedido · 30 s formular · 20 s temperatura · 10 s proceso
+   ============================================================ */
+let L={};
+const PASO=5;
+const TIEMPOS={brief:30, mezcla:30, temp:20, proceso:10};
+let labT=null;
+
+function labCrono(seg, etiqueta, alTerminar){
+  labCronoStop();
+  const bar=$('#labBar'), num=$('#labSeg'), fase=$('#labFase');
+  if(fase) fase.textContent=etiqueta;
+  const tot=seg*1000, t0=performance.now();
+  L.cronoFin=t0+tot; L.cronoTot=tot;
+  let last=-1;
+  if(bar){ bar.className=''; bar.style.width='100%'; }
+  if(num){ num.className='timernum'; num.textContent=seg; }
+  labT=setInterval(()=>{
+    const left=Math.max(0,L.cronoFin-performance.now()), pct=left/tot*100, sg=Math.ceil(left/1000);
+    if(bar){ bar.style.width=pct+'%'; bar.className=pct<=25?'danger':(pct<=55?'warn':''); }
+    if(sg!==last){ if(num) num.textContent=sg; last=sg; if(sg<=5&&sg>0) Snd.tick(); }
+    if(num) num.className='timernum'+(pct<=25?' danger':'');
+    if(left<=0){ labCronoStop(); if(alTerminar) alTerminar(); }
+  },60);
+}
+function labCronoStop(){ if(labT){ clearInterval(labT); labT=null; } }
+function labRestan(){ return Math.max(0, Math.ceil((L.cronoFin-performance.now())/1000)); }
+
+function labIniciar(){
+  const nm=$('#inpName3').value.trim();
+  if(nm.length<3){ shake($('#inpName3')); Snd.wrong(); $('#inpName3').focus(); return; }
+  store.set('pj_name',nm);
+  L={nombre:nm, nivel:0, vidas:3, puntos:0, t0:Date.now(), perfectos:0, historia:[], bonus:0};
+  go('lab'); Escena.init(); Escena.start();
+  labNivel();
+}
+
+function labNivel(){
+  const N=NIVELES[L.nivel];
+  L.mezcla=N.ing.map(()=>0); L.bonus=0; L.tempElegida=null;
+  Escena.limpiar(); Escena.setMezcla(null); Escena.setTemp(0,'#8A93C4'); Escena.setPieza(null);
+  Escena.setMaquina(N.maquina);
+  labHUD();
+  $('#labPanel').innerHTML=
+    '<div class="labbrief">'+
+      '<span class="qcat" style="background:linear-gradient(135deg,#7A5CFF,#00C6FB)">PEDIDO '+N.id+' DE '+NIVELES.length+'</span>'+
+      '<div class="h2 mt">'+N.titulo+'</div>'+
+      '<p class="muted">'+N.pedido+'</p>'+
+      '<div class="ingprev mt">'+N.ing.map(g=>
+        '<div class="ipill" style="--ic:'+g.c+'"><span class="idot"></span><b>'+g.n+'</b><span>'+g.rol+'</span></div>').join('')+'</div>'+
+      '<div class="dato mt">⏱ Tenés 30 s para leer, 30 s para formular, 20 s para elegir la temperatura y 10 s de proceso. Una sola oportunidad por lote.</div>'+
+      '<div class="row mt2 end"><button class="btn lg green" id="btnLabGo">YA LO LEÍ, A LA MEZCLADORA →</button></div>'+
+    '</div>';
+  $('#btnLabGo').addEventListener('click',()=>{ Snd.level(); labMezcla(); });
+  labCrono(TIEMPOS.brief,'LEYENDO EL PEDIDO',()=>labMezcla());
+}
+
+function labHUD(){
+  const N=NIVELES[L.nivel];
+  $('#labNivel').textContent='PEDIDO '+N.id+'/'+NIVELES.length;
+  $('#labVidas').innerHTML='<span style="letter-spacing:2px">'+'❤'.repeat(L.vidas)+'<span style="opacity:.25">'+'❤'.repeat(3-L.vidas)+'</span></span>';
+  $('#labPts').textContent=L.puntos+' pts';
+}
+
+function labFrac(){ return L.mezcla.map(v=>v/100); }
+function labRestante(){ return 100-L.mezcla.reduce((a,b)=>a+b,0); }
+function labMatch(){
+  const N=NIVELES[L.nivel];
+  let s=0; N.ing.forEach((g,i)=>{ s+=Math.abs(L.mezcla[i]-g.t); });
+  s+=labRestante();                    // lo que falte cargar también penaliza
+  return Math.max(0, 100-s/2);
+}
+
+function labMezcla(){
+  const N=NIVELES[L.nivel];
+  let html='<div class="labtit">'+N.titulo+'</div><div class="h2">Formulá el compuesto</div>'+
+    '<p class="muted small">Repartí el 100 %. Las barras se mueven en vivo: el triángulo marca lo que pide la especificación.</p>'+
+    '<div class="restwrap mt"><div class="restchip" id="labRest">Restante: 100 %</div></div>'+
+    '<div class="ingrs mt">';
+  N.ing.forEach((g,i)=>{
+    html+='<div class="ingr" style="--ic:'+g.c+'">'+
+      '<div class="ihead"><span class="idot"></span><b>'+g.n+'</b><span class="ipct" id="ipct'+i+'">0 %</span></div>'+
+      '<div class="irol">'+g.rol+'</div>'+
+      '<div class="irow">'+
+        '<button class="stepb" data-i="'+i+'" data-d="-1" aria-label="Menos">−</button>'+
+        '<input type="range" class="islider" id="isl'+i+'" min="0" max="100" step="'+PASO+'" value="0" data-i="'+i+'" aria-label="'+g.n+'">'+
+        '<button class="stepb" data-i="'+i+'" data-d="1" aria-label="Más">+</button>'+
+      '</div></div>';
+  });
+  html+='</div><div class="divider"></div><div id="labBars"></div>'+
+    '<div class="row mt2"><button class="btn ghost sm" id="btnLabReset">↺ Vaciar</button>'+
+    '<div class="spacer"></div>'+
+    '<button class="btn lg pink" id="btnLabMix" disabled>CARGAR EN LA MÁQUINA ⚗️</button></div>';
+  $('#labPanel').innerHTML=html;
+
+  $$('.stepb').forEach(b=>b.addEventListener('click',()=>{
+    labSet(+b.dataset.i, L.mezcla[+b.dataset.i]+(+b.dataset.d)*PASO); Snd.click();
+  }));
+  $$('.islider').forEach(sl=>sl.addEventListener('input',()=>labSet(+sl.dataset.i,+sl.value)));
+  $('#btnLabReset').addEventListener('click',()=>{ L.mezcla=N.ing.map(()=>0); labPintarMezcla(); Snd.click(); });
+  $('#btnLabMix').addEventListener('click',()=>labConfirmarMezcla(false));
+  labPintarMezcla();
+  labCrono(TIEMPOS.mezcla,'FORMULANDO — repartí el 100 %',()=>labConfirmarMezcla(true));
+}
+
+function labSet(i,v){
+  const otros=L.mezcla.reduce((a,b,j)=>j===i?a:a+b,0);
+  L.mezcla[i]=Math.max(0,Math.min(100-otros, Math.round(v/PASO)*PASO));
+  labPintarMezcla();
+}
+
+function labPintarMezcla(){
+  const N=NIVELES[L.nivel], f=labFrac(), rest=labRestante();
+  N.ing.forEach((g,i)=>{
+    const p=$('#ipct'+i); if(p) p.textContent=L.mezcla[i]+' %';
+    const sl=$('#isl'+i);
+    if(sl){ if(+sl.value!==L.mezcla[i]) sl.value=L.mezcla[i]; sl.style.setProperty('--p',L.mezcla[i]); }
+  });
+  const r=$('#labRest');
+  if(r){ r.textContent=rest===0?'✓ Mezcla completa (100 %)':'Restante: '+rest+' %';
+    r.className='restchip'+(rest===0?' full':''); }
+  const btn=$('#btnLabMix'); if(btn) btn.disabled=(rest!==0);
+
+  Escena.setMezcla(N.ing.map((g,i)=>({f:f[i],c:g.c})));
+
+  const vals=N.calc(f).map(v=>Math.max(0,Math.min(10,v)));
+  const obj=N.calc(N.ing.map(g=>g.t/100)).map(v=>Math.max(0,Math.min(10,v)));
+  const cont=$('#labBars'); if(!cont) return;
+  if(!cont.children.length){
+    cont.innerHTML='<div class="lab-bars-t">Propiedades del compuesto</div>'+N.props.map((p,i)=>
+      '<div class="bar labbar"><div class="lab"><span>'+p+'</span><span id="bv'+i+'">0.0</span></div>'+
+      '<div class="track"><div class="tgt" id="bt'+i+'"></div><div class="fill" id="bf'+i+'"></div></div></div>').join('');
+  }
+  vals.forEach((v,i)=>{
+    const fl=$('#bf'+i); if(!fl) return;
+    fl.style.width=(v*10)+'%';
+    fl.style.background = v>=obj[i]-0.6 ? 'linear-gradient(90deg,#04B487,#2BE0AC)'
+      : (v<obj[i]*0.55 ? 'linear-gradient(90deg,#E23D5B,#FF6E86)' : 'linear-gradient(90deg,#F59300,#FFC24D)');
+    $('#bv'+i).textContent=v.toFixed(1);
+    $('#bt'+i).style.left=(obj[i]*10)+'%';
+  });
+}
+
+function labConfirmarMezcla(porTiempo){
+  labCronoStop();
+  L.matchNivel=labMatch();
+  L.mezclaIncompleta = labRestante()>0;
+  L.bonus += porTiempo?0:labRestan()*5;
+  if(!porTiempo){ Snd.click(); }
+  labTemp();
+}
+
+function labTemp(){
+  const N=NIVELES[L.nivel];
+  const cal = L.matchNivel>=95?'perf':(L.matchNivel>=N.minMatch?'acep':'otro');
+  const etiqueta = cal==='perf'?'✅ Mezcla perfecta':(cal==='acep'?'👍 Mezcla aceptable':'❓ Mezcla dudosa');
+  let html='<div class="labtit">'+N.titulo+'</div>'+
+    '<div class="dato" style="margin:0 0 14px">'+etiqueta+' · el compuesto ya está cargado en la '+N.maquina.toLowerCase()+
+    (L.mezclaIncompleta?'. Cargaste solo el '+(100-labRestante())+' % de la receta.':'.')+'</div>'+
+    '<div class="h2">Temperatura de '+N.proceso.toLowerCase()+'</div>'+
+    '<p class="muted small">Una sola está dentro de la ventana de proceso. Si te quedás corto no fluye; si te pasás, el material se degrada.</p>'+
+    '<div class="temps mt">';
+  N.temps.forEach((tp,i)=>{
+    html+='<button class="tempb" data-i="'+i+'"><span class="tv">'+tp.v+'<small>°C</small></span>'+
+      '<span class="tb"><span class="tf" style="height:'+(20+i*35)+'%"></span></span></button>';
+  });
+  html+='</div>';
+  $('#labPanel').innerHTML=html;
+  $$('.tempb').forEach(b=>{
+    const tp=N.temps[+b.dataset.i];
+    const pintar=()=>Escena.setTemp(Math.min(1,tp.v/400), tp.v<200?'#00C6FB':(tp.v<300?'#FFB020':'#FF4D6D'));
+    b.addEventListener('pointerenter',pintar);
+    b.addEventListener('click',()=>{ L.bonus+=labRestan()*10; labProcesar(+b.dataset.i); });
+  });
+  labCrono(TIEMPOS.temp,'ELEGÍ LA TEMPERATURA',()=>labProcesar(-1));
+}
+
+function labProcesar(i){
+  labCronoStop();
+  const N=NIVELES[L.nivel];
+  const tp = i>=0 ? N.temps[i] : null;
+  L.tempElegida=tp;
+  $$('.tempb').forEach(b=>b.disabled=true);
+  if(tp){
+    Escena.setTemp(Math.min(1,tp.v/400), tp.r==='baja'?'#00C6FB':(tp.r==='ok'?'#FFB020':'#FF4D6D'));
+    Escena.setEstado('calentando');
+  }else{
+    Escena.setTemp(0.1,'#8A93C4'); Escena.setEstado('idle');
+  }
+  Snd.tick();
+  $('#labPanel').innerHTML='<div class="center pad">'+
+    '<div style="font-size:44px">'+(tp?'🔥':'⏳')+'</div>'+
+    '<div class="h2">'+(tp?('Procesando a '+tp.v+' °C…'):'Nadie eligió la temperatura')+'</div>'+
+    '<p class="muted">'+(tp?'La máquina está trabajando. Aguantá.':'El lote quedó parado en la máquina.')+'</p>'+
+    '<div class="row mt" style="justify-content:center"><button class="btn ghost sm" id="btnSaltear">Ver el resultado ahora →</button></div></div>';
+  $('#btnSaltear').addEventListener('click',()=>{ labCronoStop(); labResultado(); });
+  labCrono(TIEMPOS.proceso, tp?'PROCESANDO':'LOTE PARADO', ()=>labResultado());
+}
+
+function labResultado(){
+  labCronoStop();
+  const N=NIVELES[L.nivel], m=L.matchNivel, tp=L.tempElegida;
+  const cal = m>=95?'perf':(m>=N.minMatch?'acep':'otro');
+  const f=labFrac();
+  const alt = cal==='otro' ? N.otro(f) : null;
+  let R;
+
+  if(!tp){
+    R={t:'sintiempo', ic:'⏳', tit:'Lote perdido', est:'',
+       txt:'Se te fue el tiempo sin elegir la temperatura. El compuesto quedó en la máquina y hay que descartarlo: una vez que la mezcla entra, o se procesa o se tira.',
+       base:0, escena:'frio', pieza:{tipo:'frio',label:'LOTE DESCARTADO'}};
+  }else if(tp.r==='alta'){
+    R={t:'quemada', ic:'💥', tit:'Se degradó el material', est:'',
+       txt:tp.txt+(cal==='otro'?' Y encima la proporción tampoco era la del pliego: doble falla.':''),
+       base:40, escena:'boom', pieza:{tipo:'quemada',label:'PIEZA QUEMADA'}};
+  }else if(tp.r==='baja'){
+    R={t:'fria', ic:'🧊', tit:'No llegó a procesarse', est:'',
+       txt:tp.txt+(cal==='otro'?' Además la proporción no era la correcta, así que ni con la temperatura justa habría salido bien.':''),
+       base:80, escena:'frio', pieza:{tipo:'frio',label:'PIEZA INCOMPLETA'}};
+  }else if(cal==='perf'){
+    R={t:'perfecta', ic:'🏭', tit:'¡Pieza perfecta!', est:'★★★',
+       txt:'Fórmula exacta y temperatura dentro de la ventana. '+tp.txt,
+       base:800, escena:'ok', pieza:{tipo:'ok',c:N.ing[0].c,label:'PIEZA OK'}};
+  }else if(cal==='acep'){
+    R={t:'aceptable', ic:'✅', tit:'Aprobada con observaciones', est:'★★☆',
+       txt:'La pieza cumple, pero la formulación quedó a '+Math.round(100-m)+' puntos de la del pliego, así que el lote sale un poco fuera de tolerancia. '+tp.txt,
+       base:500, escena:'ok', pieza:{tipo:'ok',c:N.ing[1].c,label:'PIEZA OK'}};
+  }else{
+    R={t:'otro', ic:'🧪', tit:'Te salió otro material', est:'★☆☆',
+       txt:'La temperatura estuvo perfecta, pero con esas proporciones no fabricaste lo que pedía el pliego: fabricaste otra cosa. Son los mismos polímeros, solo cambió cuánto pusiste de cada uno.',
+       base:150, escena:'otro', pieza:{tipo:'otro',label:'OTRO MATERIAL'}};
+  }
+
+  const pts = R.base + Math.round(m*2) + (R.t==='perfecta'||R.t==='aceptable' ? L.bonus : 0);
+  L.puntos += pts;
+  if(R.t==='perfecta') L.perfectos++;
+  if(R.t!=='perfecta' && R.t!=='aceptable') L.vidas--;
+  L.historia.push({nivel:N.id, tipo:R.t, match:Math.round(m), pts:pts});
+  labHUD();
+
+  Escena.setEstado(R.escena); Escena.setPieza(R.pieza);
+  if(R.t==='perfecta'){ Confetti.big(); Snd.fanfare(); flash(true); }
+  else if(R.t==='aceptable'){ Confetti.burst(innerWidth/2, innerHeight*0.35); Snd.correct(); }
+  else if(R.t==='quemada'){ Snd.wrong(); Snd.timeout(); flash(false); shake($('#labPanel')); }
+  else { Snd.wrong(); shake($('#labPanel')); }
+
+  const ultimo = L.nivel>=NIVELES.length-1 || L.vidas<=0;
+  $('#labPanel').innerHTML=
+    '<div class="resultado r-'+R.t+'">'+
+      '<div class="rtit">'+R.ic+' '+R.tit+(R.est?'<span class="estrellas">'+R.est+'</span>':'')+'</div>'+
+      '<p>'+R.txt+'</p>'+
+      (alt?'<div class="matbox"><b>'+alt.n+'</b>'+alt.d+'</div>':'')+
+      '<div class="matbox"><b>La fórmula del pliego era</b>'+
+        N.ing.map((g,i)=>g.n+' '+g.t+' % <span style="opacity:.6">(pusiste '+L.mezcla[i]+' %)</span>').join(' · ')+
+        '<br>Temperatura: '+N.temps.filter(x=>x.r==='ok')[0].v+' °C</div>'+
+      '<div class="row mt" style="align-items:center"><span class="muted small">+'+pts+' pts</span><div class="spacer"></div>'+
+      '<button class="btn lg '+(R.t==='perfecta'||R.t==='aceptable'?'green':'red')+'" id="btnLabNext">'+
+        (ultimo?'VER RESULTADO 🏁':'SIGUIENTE PEDIDO →')+'</button></div>'+
+    '</div>';
+  $('#btnLabNext').addEventListener('click',()=>{
+    if(ultimo) labFin();
+    else { L.nivel++; labNivel(); }
+  });
+  $('#labFase').textContent='RESULTADO DEL LOTE';
+  $('#labBar').style.width='100%'; $('#labBar').className='';
+  $('#labSeg').textContent='—'; $('#labSeg').className='timernum';
+}
+
+function labFin(){
+  const gano = L.vidas>0 && L.nivel>=NIVELES.length-1;
+  const seg=Math.round((Date.now()-L.t0)/1000);
+  const niveles = L.historia.filter(h=>h.tipo==='perfecta'||h.tipo==='aceptable').length;
+  L.puntos+=L.vidas*150;
+  const code=hacerCodigo({n:L.nombre,a:niveles,q:NIVELES.length,p:L.puntos,t:seg,f:new Date().toISOString().slice(0,10),m:'L'});
+  L.code=code;
+  Escena.stop();
+  $('#labFinIco').textContent = niveles===3?'🏭':(niveles>0?'⚗️':'💥');
+  $('#labFinTit').textContent = L.perfectos===NIVELES.length ? '¡Formulador maestro!'
+    : (niveles===NIVELES.length ? '¡Producción aprobada!'
+    : (niveles>0 ? 'Producción parcial' : 'Se perdieron los tres lotes'));
+  $('#labFinSub').textContent = gano
+    ? ((L.perfectos===3&&L.vidas===3)?'Tres fórmulas perfectas y ningún lote perdido . Impecable.':'Terminaste los 3 niveles. Repasá las fórmulas que te costaron y volvé por el puntaje perfecto.')
+    : 'Llegaste al nivel '+(L.nivel+1)+'. La formulación se aprende quemando lotes: volvé a intentar.';
+  $('#labFinPts').textContent=L.puntos;
+  $('#labFinNiv').textContent=niveles+'/'+NIVELES.length;
+  labCronoStop();
+  $('#labFinPer').textContent=L.perfectos;
+  $('#labFinTime').textContent=fmtTime(seg);
+  $('#labFinCode').textContent=code;
+  go('labfin');
+  if(gano){ Confetti.big(); Snd.fanfare(); } else Snd.timeout();
+  if(typeof enviarResultado==='function') enviarResultado({nombre:L.nombre,modo:'L',aciertos:niveles,total:NIVELES.length,puntos:L.puntos,tiempo:seg});
+}
+
+/* ============================================================
+   MOTOR DE LA APLICACIÓN
+   ============================================================ */
+const $  = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:v; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+};
+
+/* ---------- Tema ---------- */
+(function initTheme(){
+  const saved = store.get('pj_theme','');
+  if(saved) document.documentElement.setAttribute('data-theme',saved);
+  syncThemeIcon();
+})();
+function syncThemeIcon(){
+  const t = document.documentElement.getAttribute('data-theme');
+  const dark = t==='dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches);
+  const b=$('#btnTheme'); if(b) b.textContent = dark ? '☀️' : '🌙';
+}
+
+/* ---------- Sonido (Web Audio API, sin archivos externos) ---------- */
+const Snd = (function(){
+  let ctx=null, on = store.get('pj_snd','1')==='1';
+  function ac(){
+    if(!ctx){ try{ ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
+    if(ctx && ctx.state==='suspended') ctx.resume();
+    return ctx;
+  }
+  function tone(f1,f2,dur,type,vol,delay){
+    if(!on) return; const c=ac(); if(!c) return;
+    const t0=c.currentTime+(delay||0);
+    const o=c.createOscillator(), g=c.createGain();
+    o.type=type||'sine'; o.frequency.setValueAtTime(f1,t0);
+    if(f2 && f2!==f1) o.frequency.exponentialRampToValueAtTime(Math.max(30,f2),t0+dur);
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.exponentialRampToValueAtTime(vol||0.16,t0+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+dur+0.03);
+  }
+  function noise(dur,vol){
+    if(!on) return; const c=ac(); if(!c) return;
+    const n=Math.floor(c.sampleRate*dur), buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);
+    const s=c.createBufferSource(); s.buffer=buf;
+    const g=c.createGain(); g.gain.value=vol||0.09;
+    const f=c.createBiquadFilter(); f.type='highpass'; f.frequency.value=1400;
+    s.connect(f); f.connect(g); g.connect(c.destination); s.start();
+  }
+  return {
+    unlock(){ ac(); },
+    isOn(){ return on; },
+    toggle(){ on=!on; store.set('pj_snd',on?'1':'0'); if(on) this.click(); return on; },
+    click(){ tone(660,880,0.06,'triangle',0.09); },
+    swoosh(){ noise(0.22,0.05); tone(220,660,0.18,'sine',0.05); },
+    correct(){ [[784,0],[1046,0.09],[1318,0.18],[1568,0.27]].forEach(p=>tone(p[0],p[0],0.22,'triangle',0.15,p[1])); },
+    wrong(){ tone(180,70,0.45,'sawtooth',0.18); tone(120,55,0.5,'square',0.09,0.03); },
+    tick(){ tone(1500,1500,0.035,'square',0.06); },
+    timeout(){ tone(320,110,0.7,'sawtooth',0.16); },
+    fanfare(){ [[523,0],[659,0.11],[784,0.22],[1046,0.33],[784,0.5],[1046,0.6],[1318,0.72]].forEach(p=>tone(p[0],p[0],0.3,'triangle',0.16,p[1])); },
+    level(){ [[440,0],[554,0.07],[659,0.14],[880,0.21]].forEach(p=>tone(p[0],p[0],0.2,'sine',0.12,p[1])); }
+  };
+})();
+
+/* ---------- Confetti propio (canvas, sin dependencias) ---------- */
+const Confetti = (function(){
+  const cv=$('#confetti'), cx=cv.getContext('2d');
+  let parts=[], raf=null, dpr=1;
+  const COLORS=['#FF3CAC','#7A5CFF','#00C6FB','#06D6A0','#FFB020','#FF4D6D','#FFFFFF'];
+  function size(){ dpr=Math.min(window.devicePixelRatio||1,2);
+    cv.width=innerWidth*dpr; cv.height=innerHeight*dpr;
+    cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
+    cx.setTransform(dpr,0,0,dpr,0,0); }
+  addEventListener('resize',size); size();
+  function spawn(n,ox,oy,power){
+    for(let i=0;i<n;i++){
+      const a=Math.random()*Math.PI*2, sp=(Math.random()*0.7+0.35)*(power||16);
+      parts.push({x:ox,y:oy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-6,
+        w:6+Math.random()*8,h:4+Math.random()*8,
+        rot:Math.random()*6.28,vr:(Math.random()-0.5)*0.4,
+        c:COLORS[(Math.random()*COLORS.length)|0],life:110+Math.random()*70,sq:Math.random()<0.3});
+    }
+    if(!raf) loop();
+  }
+  function loop(){
+    cx.clearRect(0,0,innerWidth,innerHeight);
+    for(let i=parts.length-1;i>=0;i--){
+      const p=parts[i];
+      p.vy+=0.34; p.vx*=0.992; p.vy*=0.992;
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.life--;
+      if(p.life<0||p.y>innerHeight+60){ parts.splice(i,1); continue; }
+      cx.save(); cx.translate(p.x,p.y); cx.rotate(p.rot);
+      cx.globalAlpha=Math.min(1,p.life/40); cx.fillStyle=p.c;
+      if(p.sq) cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      else { cx.beginPath(); cx.ellipse(0,0,p.w/2,p.h/2,0,0,6.3); cx.fill(); }
+      cx.restore();
+    }
+    if(parts.length) raf=requestAnimationFrame(loop);
+    else { raf=null; cx.clearRect(0,0,innerWidth,innerHeight); }
+  }
+  return {
+    burst(x,y){ spawn(70, x==null?innerWidth/2:x, y==null?innerHeight*0.38:y, 15); },
+    big(){ spawn(120,innerWidth*0.2,innerHeight*0.5,18); spawn(120,innerWidth*0.8,innerHeight*0.5,18);
+           setTimeout(()=>spawn(140,innerWidth*0.5,innerHeight*0.35,20),220);
+           setTimeout(()=>spawn(110,innerWidth*0.35,innerHeight*0.6,17),480); }
+  };
+})();
+
+/* ---------- Efectos de pantalla ---------- */
+function flash(good){
+  const f=$('#flash'); f.classList.toggle('good',!!good); f.classList.add('on');
+  setTimeout(()=>f.classList.remove('on'),260);
+}
+function shake(el){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+
+/* ---------- Navegación ---------- */
+const SCREENS={home:'s-home',setup:'s-setup',trivia:'s-trivia',result:'s-result',
+  quizintro:'s-quizintro',quiz:'s-quiz',quizres:'s-quizres',doc:'s-doc',
+  labintro:'s-labintro',lab:'s-lab',labfin:'s-labfin'};
+function go(name){
+  const id=SCREENS[name]||name;
+  $$('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id); if(el) el.classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'in document.documentElement.style?'instant':'auto'});
+  Snd.swoosh();
+  if(name!=='trivia') stopTimer();
+  if(typeof Escena!=='undefined'){
+    if(name==='lab'){ Escena.init(); Escena.resize(); Escena.start(); }
+    else Escena.stop();
+  }
+}
+
+/* ============================================================
+   CÓDIGO VERIFICABLE
+   ============================================================ */
+const SALT='PM|UTN-FRTDF|CONOCIMIENTO-MATERIALES|POLIMEROS|v1';
+function b64e(str){
+  const b=new TextEncoder().encode(str); let s='';
+  b.forEach(x=>s+=String.fromCharCode(x));
+  return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function b64d(str){
+  let s=str.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='=';
+  const bin=atob(s), b=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) b[i]=bin.charCodeAt(i);
+  return new TextDecoder().decode(b);
+}
+function fnv(str){ let h=0x811c9dc5>>>0;
+  for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; }
+  return h>>>0; }
+function firma(payload){
+  const a=fnv(payload+SALT), b=fnv(SALT+payload+'#2');
+  return ((a^b)>>>0).toString(36).toUpperCase().padStart(4,'0').slice(-4);
+}
+function hacerCodigo(o){
+  const p=b64e(JSON.stringify(o));
+  return 'PM-'+p+'-'+firma(p);
+}
+function leerCodigo(code){
+  const m=String(code).trim().match(/^PM-([A-Za-z0-9_\-]+)-([A-Z0-9]{4})$/);
+  if(!m) return {ok:false,err:'Formato inválido'};
+  if(firma(m[1])!==m[2]) return {ok:false,err:'Firma incorrecta (código alterado)'};
+  try{
+    const d=JSON.parse(b64d(m[1]));
+    if(typeof d.a!=='number'||typeof d.t!=='number') return {ok:false,err:'Contenido inválido'};
+    return {ok:true,data:d};
+  }catch(e){ return {ok:false,err:'No se pudo leer el contenido'}; }
+}
+
+/* ============================================================
+   TRIVIA
+   ============================================================ */
+const T_SEG=20, T_MS=T_SEG*1000;
+let T={};
+let timerId=null, tStart=0, lastTick=-1;
+
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function startTrivia(){
+  const nm=$('#inpName').value.trim();
+  if(nm.length<3){ $('#inpName').focus(); shake($('#inpName')); Snd.wrong(); return; }
+  store.set('pj_name',nm);
+  T={nombre:nm, i:0, aciertos:0, puntos:0, racha:0, mejorRacha:0, tiempoTotal:0, detalle:[],
+     orden:PREGUNTAS.map((p,i)=>i)};
+  const dots=$('#dots'); dots.innerHTML='';
+  PREGUNTAS.forEach(()=>{ const d=document.createElement('div'); d.className='pd'; dots.appendChild(d); });
+  go('trivia'); Snd.level(); pintarPregunta();
+}
+
+function pintarPregunta(){
+  const idx=T.orden[T.i], p=PREGUNTAS[idx], c=CATS[p.cat];
+  $('#chipCat').textContent = c.i+' '+c.n;
+  $('#chipCat').style.background='linear-gradient(135deg,'+c.c1+','+c.c2+')';
+  $('#chipNum').textContent=(T.i+1)+' / '+PREGUNTAS.length;
+  $('#chipScore').textContent=T.puntos+' pts';
+  $('#qcat').textContent=c.n;
+  $('#qcat').style.background='linear-gradient(135deg,'+c.c1+','+c.c2+')';
+  $('#qtext').textContent=p.q;
+  $('#qart').innerHTML = p.art && SVG[p.art] ? SVG[p.art] : '';
+  $('#fbslot').innerHTML='';
+
+  $$('.pd').forEach((d,i)=>{ d.classList.toggle('now', i===T.i); });
+
+  const letras=['A','B','C','D'];
+  const opciones=shuffle(p.o.map((txt,i)=>({txt,ok:i===p.a})));
+  T.actual={p,opciones};
+  const cont=$('#opts'); cont.innerHTML='';
+  opciones.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.type='button';
+    b.innerHTML='<span class="k">'+letras[i]+'</span><span>'+o.txt+'</span>';
+    b.addEventListener('click',()=>responder(i));
+    cont.appendChild(b);
+  });
+  startTimer();
+}
+
+function startTimer(){
+  stopTimer(); tStart=performance.now(); lastTick=-1;
+  const bar=$('#timerbar'), num=$('#timerNum');
+  bar.className=''; num.className='timernum'; bar.style.width='100%'; num.textContent=T_SEG;
+  timerId=setInterval(()=>{
+    const el=performance.now()-tStart, left=Math.max(0,T_MS-el), pct=left/T_MS*100, s=Math.ceil(left/1000);
+    bar.style.width=pct+'%';
+    if(s!==lastTick){ num.textContent=s; lastTick=s;
+      if(s<=5 && s>0) Snd.tick(); }
+    bar.className = pct<=30?'danger':(pct<=60?'warn':'');
+    num.className = pct<=30?'timernum danger':'timernum';
+    if(left<=0) tiempoAgotado();
+  },60);
+}
+function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
+
+function tiempoAgotado(){ resolver(-1,T_MS); }
+function responder(i){ resolver(i, performance.now()-tStart); }
+
+function resolver(sel, ms){
+  stopTimer();
+  const {p,opciones}=T.actual;
+  const okIdx=opciones.findIndex(o=>o.ok);
+  const acerto = sel===okIdx;
+  const seg=Math.min(T_SEG, ms/1000);
+  T.tiempoTotal += seg;
+
+  $$('#opts .opt').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===okIdx) b.classList.add('correct');
+    else if(i===sel) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+
+  let pts=0;
+  if(acerto){
+    T.aciertos++; T.racha++; T.mejorRacha=Math.max(T.mejorRacha,T.racha);
+    pts = 100 + Math.round(Math.max(0,(T_MS-ms)/T_MS)*200);
+    T.puntos+=pts;
+    Snd.correct(); flash(true);
+    const r=$('#opts').getBoundingClientRect();
+    Confetti.burst(innerWidth/2, r.top+r.height/3);
+  }else{
+    T.racha=0;
+    if(sel===-1) Snd.timeout(); else Snd.wrong();
+    flash(false); shake($('#qcard'));
+  }
+  $('#chipScore').textContent=T.puntos+' pts';
+  const dot=$$('.pd')[T.i];
+  dot.classList.remove('now'); dot.classList.add(acerto?'ok':'bad');
+
+  T.detalle.push({cat:p.cat,q:p.q,ok:acerto,seg:seg,timeout:sel===-1});
+
+  const ultima = T.i>=PREGUNTAS.length-1;
+  const fb=document.createElement('div');
+  fb.className='feedback '+(acerto?'ok':'bad');
+  fb.innerHTML=
+    '<div class="fhead">'+(acerto?'✅ ¡Correcto!':(sel===-1?'⏰ Se acabó el tiempo':'❌ No era esa'))+
+      (acerto?'<span style="margin-left:auto;font-size:15px;color:var(--ink-2)">+'+pts+' pts</span>':'')+'</div>'+
+    (acerto?'':'<p><b>Respuesta correcta:</b> '+opciones[okIdx].txt+'</p>')+
+    '<p>'+p.e+'</p>'+
+    '<div class="dato">💡 '+p.d+'</div>'+
+    (p.art&&SVG[p.art]&&!acerto?'<div class="fart">'+SVG[p.art]+'</div>':'')+
+    '<div class="row mt end"><button class="btn '+(ultima?'green':'pink')+'" id="btnNext">'+
+      (ultima?'VER RESULTADO 🏁':'SIGUIENTE →')+'</button></div>';
+  $('#fbslot').appendChild(fb);
+  $('#btnNext').addEventListener('click',()=>{
+    if(ultima) finalizarTrivia();
+    else { T.i++; pintarPregunta(); $('#qcard').scrollIntoView({behavior:'smooth',block:'start'}); }
+  });
+  fb.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function fmtTime(s){ const m=Math.floor(s/60), r=Math.round(s%60); return m+':'+String(r).padStart(2,'0'); }
+
+function finalizarTrivia(){
+  const n=PREGUNTAS.length, a=T.aciertos, t=Math.round(T.tiempoTotal);
+  $('#resScore').textContent=a+'/'+n;
+  $('#resTime').textContent=fmtTime(t);
+  $('#resPts').textContent=T.puntos;
+  $('#resAvg').textContent=(T.tiempoTotal/n).toFixed(1)+'s';
+  $('#resStreak').textContent=T.mejorRacha;
+  const pct=a/n;
+  let titulo,sub;
+  if(pct===1){ titulo='🏆 PERFECTO'; sub='15 de 15. Esto ya no es suerte: sabés el tema.'; }
+  else if(pct>=0.8){ titulo='🔥 Excelente'; sub='Dominás las propiedades. Repasá lo que fallaste y sos imparable.'; }
+  else if(pct>=0.6){ titulo='💪 Muy bien'; sub='Buena base. Los detalles de electrotecnia y procesamiento son los que suman.'; }
+  else if(pct>=0.4){ titulo='📚 Vas encaminado'; sub='Leé las explicaciones de abajo: cada una es media pregunta de parcial.'; }
+  else { titulo='🧪 A repasar'; sub='Tranquilo: volvé a jugar, las explicaciones están hechas para eso.'; }
+  $('#resTitle').textContent=titulo; $('#resSub').textContent=sub;
+
+  const code=hacerCodigo({n:T.nombre,a:a,q:n,p:T.puntos,t:t,f:new Date().toISOString().slice(0,10)});
+  $('#resCode').textContent=code;
+  T.code=code;
+
+  const rl=$('#reviewList'); rl.innerHTML='';
+  T.detalle.forEach((d,i)=>{
+    const div=document.createElement('div');
+    div.className='review '+(d.ok?'ok':'bad');
+    div.innerHTML='<span class="rk">'+(d.ok?'✓':'✕')+'</span><span><b>'+CATS[d.cat].n+'</b> — '+d.q+
+      '<br><span style="opacity:.6;font-size:13px">'+(d.timeout?'sin responder':d.seg.toFixed(1)+' s')+'</span></span>';
+    rl.appendChild(div);
+  });
+
+  go('result');
+  if(typeof enviarResultado==='function') enviarResultado({nombre:T.nombre,modo:'T',aciertos:a,total:n,puntos:T.puntos,tiempo:t});
+  if(pct>=0.6){ Confetti.big(); Snd.fanfare(); }
+  else Snd.level();
+}
+
+/* ============================================================
+   ¿QUÉ POLÍMERO SOS?
+   ============================================================ */
+let Q={};
+function startQuiz(){
+  Q={i:0, score:{}, nombre:$('#inpName2').value.trim()};
+  Object.keys(POLIMEROS).forEach(k=>Q.score[k]=0);
+  go('quiz'); pintarQuiz();
+}
+function pintarQuiz(){
+  const item=QUIZ[Q.i];
+  $('#qzNum').textContent=(Q.i+1)+' / '+QUIZ.length;
+  $('#qzbar').style.width=((Q.i+1)/QUIZ.length*100)+'%';
+  $('#qzText').textContent=item.q;
+  const letras=['A','B','C','D'], cont=$('#qzOpts'); cont.innerHTML='';
+  shuffle(item.o).forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.type='button';
+    b.innerHTML='<span class="k">'+letras[i]+'</span><span>'+o[0]+'</span>';
+    b.addEventListener('click',()=>{
+      Object.keys(o[1]).forEach(k=>Q.score[k]+=o[1][k]);
+      Snd.click(); b.classList.add('correct');
+      setTimeout(()=>{ if(Q.i>=QUIZ.length-1) finalizarQuiz(); else { Q.i++; pintarQuiz(); } },220);
+    });
+    cont.appendChild(b);
+  });
+}
+function finalizarQuiz(){
+  let best=null,bv=-1;
+  Object.keys(Q.score).forEach(k=>{ if(Q.score[k]>bv){ bv=Q.score[k]; best=k; } });
+  const P=POLIMEROS[best]; Q.res=best;
+  $('#pcardTop').style.background='linear-gradient(140deg,'+P.g[0]+','+P.g[1]+')';
+  $('#pEmoji').textContent=P.emoji;
+  $('#pAlias').textContent=P.alias;
+  $('#pName').textContent=P.n;
+  $('#pFormula').textContent=P.f;
+  $('#pDesc').textContent=P.d;
+  $('#pFact').textContent=P.fact;
+  const bars=$('#pBars'); bars.innerHTML='';
+  Object.keys(P.s).forEach(k=>{
+    const v=P.s[k];
+    const d=document.createElement('div'); d.className='bar';
+    d.innerHTML='<div class="lab"><span>'+k+'</span><span>'+v+'/10</span></div>'+
+      '<div class="track"><div class="fill" style="background:linear-gradient(90deg,'+P.g[0]+','+P.g[1]+')"></div></div>';
+    bars.appendChild(d);
+  });
+  go('quizres');
+  setTimeout(()=>{ $$('#pBars .fill').forEach((f,i)=>{
+    const v=Object.values(P.s)[i]; setTimeout(()=>f.style.width=(v*10)+'%', i*110); }); },140);
+  Confetti.big(); Snd.fanfare();
+}
+
+/* ---------- Carta PNG 1080x1920 ---------- */
+function roundRect(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r);
+  c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+function wrapLines(c,txt,maxW){
+  const words=txt.split(' '); const out=[]; let line='';
+  words.forEach(w=>{ const t=line?line+' '+w:w;
+    if(c.measureText(t).width>maxW && line){ out.push(line); line=w; } else line=t; });
+  if(line) out.push(line); return out;
+}
+function wrapText(c,txt,x,y,maxW,lh){
+  const words=txt.split(' '); let line='', yy=y;
+  words.forEach(w=>{ const t=line?line+' '+w:w;
+    if(c.measureText(t).width>maxW && line){ c.fillText(line,x,yy); yy+=lh; line=w; } else line=t; });
+  if(line) c.fillText(line,x,yy);
+  return yy+lh;
+}
+function generarCarta(){
+  const P=POLIMEROS[Q.res];
+  const W=1080,H=1920, cv=document.createElement('canvas');
+  cv.width=W; cv.height=H; const c=cv.getContext('2d');
+  const g=c.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,P.g[0]); g.addColorStop(1,P.g[1]);
+  c.fillStyle=g; c.fillRect(0,0,W,H);
+  // rayos
+  c.save(); c.translate(W/2,430); c.globalAlpha=.10; c.fillStyle='#fff';
+  for(let i=0;i<18;i++){ c.rotate(Math.PI*2/18); c.beginPath(); c.moveTo(0,0); c.lineTo(1400,-90); c.lineTo(1400,90); c.fill(); }
+  c.restore();
+  // burbujas
+  c.globalAlpha=.10; c.fillStyle='#fff';
+  [[120,1500,150],[930,1200,110],[840,300,90],[180,760,70]].forEach(b=>{ c.beginPath(); c.arc(b[0],b[1],b[2],0,6.3); c.fill(); });
+  c.globalAlpha=1;
+
+  c.textAlign='center'; c.fillStyle='#fff';
+  c.font='800 34px Nunito, system-ui, sans-serif';
+  c.fillText('POLÍMEROS EN JUEGO', W/2, 130);
+  c.globalAlpha=.85; c.font='700 26px Nunito, system-ui, sans-serif';
+  c.fillText('Conocimiento de los Materiales · UTN FRTDF', W/2, 176);
+  c.globalAlpha=1;
+
+  c.font='190px system-ui, "Apple Color Emoji","Segoe UI Emoji", sans-serif';
+  c.fillText(P.emoji, W/2, 430);
+
+  c.font='800 30px Nunito, system-ui, sans-serif';
+  c.globalAlpha=.9; c.fillText(P.alias.toUpperCase(), W/2, 500); c.globalAlpha=1;
+  let fs=112; c.font='800 '+fs+'px Nunito, system-ui, sans-serif';
+  while(c.measureText(P.n).width>900 && fs>50){ fs-=6; c.font='800 '+fs+'px Nunito, system-ui, sans-serif'; }
+  c.fillText(P.n, W/2, 600);
+  c.font='700 28px Nunito, system-ui, sans-serif'; c.globalAlpha=.9;
+  c.fillText(P.f, W/2, 648); c.globalAlpha=1;
+
+  // panel de alto dinamico
+  c.textAlign='left';
+  c.font='700 33px Nunito, system-ui, sans-serif';
+  const nDesc=wrapLines(c,P.d,840).length;
+  c.font='700 25px Nunito, system-ui, sans-serif';
+  const nFact=wrapLines(c,P.fact,840).length;
+  const contH = 70 + nDesc*46 + 26 + Object.keys(P.s).length*88 + nFact*36 + 46;
+  const panelY = 700 + Math.max(0,(880-contH)/2);
+  c.fillStyle='rgba(255,255,255,.16)'; roundRect(c,70,panelY,940,contH,44); c.fill();
+  c.strokeStyle='rgba(255,255,255,.42)'; c.lineWidth=3; c.stroke();
+
+  c.fillStyle='#fff';
+  c.font='700 33px Nunito, system-ui, sans-serif';
+  let y=wrapText(c,P.d,120,panelY+70,840,46);
+
+  y+=26;
+  Object.keys(P.s).forEach(k=>{
+    const v=P.s[k];
+    c.font='800 27px Nunito, system-ui, sans-serif';
+    c.fillText(k.toUpperCase(),120,y);
+    c.textAlign='right'; c.fillText(v+'/10',960,y); c.textAlign='left';
+    c.fillStyle='rgba(0,0,0,.22)'; roundRect(c,120,y+14,840,26,13); c.fill();
+    c.fillStyle='#fff'; roundRect(c,120,y+14,840*v/10,26,13); c.fill();
+    y+=88;
+  });
+
+  c.font='700 25px Nunito, system-ui, sans-serif'; c.globalAlpha=.92;
+  wrapText(c,P.fact,120,y+6,840,36); c.globalAlpha=1;
+
+  c.textAlign='center';
+  if(Q.nombre){
+    c.fillStyle='rgba(255,255,255,.95)'; roundRect(c,W/2-330,1620,660,96,48); c.fill();
+    c.fillStyle=P.g[1]; c.font='800 46px Nunito, system-ui, sans-serif';
+    let nm=Q.nombre, f2=46;
+    while(c.measureText(nm).width>580 && f2>24){ f2-=2; c.font='800 '+f2+'px Nunito, system-ui, sans-serif'; }
+    c.fillText(nm, W/2, 1684);
+  }
+  c.fillStyle='#fff'; c.globalAlpha=.9;
+  c.font='800 30px Nunito, system-ui, sans-serif';
+  c.fillText('¿Y vos qué polímero sos?', W/2, 1800);
+  c.globalAlpha=.7; c.font='700 24px Nunito, system-ui, sans-serif';
+  c.fillText('Trabajo práctico · Propiedades de los polímeros', W/2, 1848);
+
+  return cv;
+}
+
+/* ============================================================
+   PANEL DEL DOCENTE
+   ============================================================ */
+const NOTAS=[10,9,8,7,6];
+function calcularRanking(){
+  const txt=$('#pasteBox').value;
+  const found=txt.match(/PM-[A-Za-z0-9_\-]+-[A-Za-z0-9]{4}/g)||[];
+  const validos=[], invalidos=[], vistos={};
+  found.forEach(code=>{
+    const r=leerCodigo(code);
+    if(!r.ok){ invalidos.push({code,err:r.err}); return; }
+    const d=r.data, key=(d.n||'?').toLowerCase().trim();
+    const modo = d.m==='L' ? 'L' : 'T';
+    const reg={nombre:d.n||'Sin nombre', aciertos:d.a, total:d.q||PREGUNTAS.length,
+               puntos:d.p||0, tiempo:d.t, fecha:d.f||'', modo:modo, code};
+    if(vistos[modo+'|'+key]!==undefined){
+      const prev=validos[vistos[modo+'|'+key]];
+      const mejor = modo==='L'
+        ? (reg.puntos>prev.puntos)
+        : (reg.aciertos>prev.aciertos)||(reg.aciertos===prev.aciertos&&reg.tiempo<prev.tiempo);
+      if(mejor) validos[vistos[modo+'|'+key]]=reg;
+    }else{ vistos[modo+'|'+key]=validos.length; validos.push(reg); }
+  });
+  pintarRanking(validos,invalidos);
+}
+function pintarRanking(v,inv){
+  const out=$('#rankOut');
+  if(!v.length && !inv.length){
+    out.innerHTML='<div class="glass pad mt center muted">No encontré ningún código. Pegá los códigos completos, con el formato <b>PM-…-XXXX</b>.</div>';
+    Snd.wrong(); return;
+  }
+  const grupos=[
+    {k:'T', t:'Trivia de la Cátedra', col:'#FF3CAC',
+     sort:(a,b)=> b.aciertos-a.aciertos || a.tiempo-b.tiempo || b.puntos-a.puntos,
+     colScore:'Aciertos', val:p=>p.aciertos+'/'+p.total},
+    {k:'L', t:'Laboratorio de Compuestos', col:'#06D6A0',
+     sort:(a,b)=> b.puntos-a.puntos || b.aciertos-a.aciertos || a.tiempo-b.tiempo,
+     colScore:'Niveles', val:p=>p.aciertos+'/'+p.total}
+  ];
+  let html='', listas=[];
+  grupos.forEach(G=>{
+    const g=v.filter(x=>x.modo===G.k); if(!g.length) return;
+    g.sort(G.sort); listas.push({G:G,g:g});
+    html+=bloqueRanking(g,G);
+  });
+  if(inv.length){
+    html+='<div class="glass pad mt"><div class="h2">Códigos rechazados</div>'+
+      '<p class="muted small">Estos códigos no pasaron la verificación de firma: fueron editados a mano o están incompletos.</p><div class="reviewlist">';
+    inv.forEach(x=>{ html+='<div class="review bad"><span class="rk">✕</span><span style="word-break:break-all">'+
+      esc(x.code.slice(0,46))+(x.code.length>46?'…':'')+'<br><span style="opacity:.7;font-size:13px">'+x.err+'</span></span></div>'; });
+    html+='</div></div>';
+  }
+  out.innerHTML=html;
+  listas.forEach(function(L2){
+    const btn=$('#csv'+L2.G.k); if(!btn) return;
+    btn.addEventListener('click',()=>{
+      const lines=['Puesto,Alumno,'+L2.G.colScore+',Total,Tiempo(s),Puntos,Nota'];
+      L2.g.forEach((p,i)=>lines.push([i+1,'"'+p.nombre.replace(/"/g,"'")+'"',p.aciertos,p.total,p.tiempo,p.puntos,i<5?NOTAS[i]:''].join(',')));
+      copiar(lines.join('\n'),btn,'✓ Copiado');
+    });
+  });
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+  if(v.length){ Confetti.big(); Snd.fanfare(); }
+}
+
+function bloqueRanking(g,G){
+  const top=g.slice(0,3), ord=[top[1],top[0],top[2]], cls=['p2','p1','p3'], pos=[2,1,3];
+  let h='<div class="glass pad mt"><div class="h2" style="display:flex;align-items:center;gap:10px">'+
+    '<span style="width:14px;height:14px;border-radius:5px;background:'+G.col+';display:inline-block"></span>'+G.t+'</div>'+
+    '<div class="podium">';
+  ord.forEach((p,i)=>{
+    if(!p){ h+='<div></div>'; return; }
+    h+='<div class="pod '+cls[i]+'"><div class="cup">'+trofeo(pos[i],G.k)+'</div>'+
+      '<div class="who">'+esc(p.nombre)+'</div>'+
+      '<div class="sc">'+G.val(p)+' · '+fmtTime(p.tiempo)+'</div>'+
+      '<div class="nota">'+NOTAS[pos[i]-1]+'</div></div>';
+  });
+  h+='</div><div class="tablewrap"><table class="rank"><thead><tr><th>#</th><th>Alumno</th><th>'+
+    G.colScore+'</th><th>Tiempo</th><th>Puntos</th><th>Nota</th></tr></thead><tbody>';
+  g.forEach((p,i)=>{
+    const nota = i<5 ? '<span class="nota-big">'+NOTAS[i]+'</span>' : '<span class="muted small">participó</span>';
+    h+='<tr class="'+(i<3?'top':'')+'"><td>'+(i+1)+'°</td><td>'+esc(p.nombre)+'</td><td>'+G.val(p)+
+       '</td><td>'+fmtTime(p.tiempo)+'</td><td>'+p.puntos+'</td><td>'+nota+'</td></tr>';
+  });
+  h+='</tbody></table></div><div class="row mt">'+
+     '<button class="btn sm green" id="csv'+G.k+'">⬇ Copiar planilla</button>'+
+     '<span class="badge g">'+g.length+' alumno'+(g.length!==1?'s':'')+'</span></div></div>';
+  return h;
+}
+
+function trofeo(pos,suf){
+  suf=suf||'';
+  const c = pos===1?['#FFF3B8','#F0A400','#8A5A00'] : pos===2?['#FFFFFF','#AEB8CE','#5F6982'] : ['#F8CFA6','#C77B33','#7A4413'];
+  return '<svg viewBox="0 0 64 64" width="50" height="50" aria-hidden="true">'+
+   '<defs><linearGradient id="tr'+suf+pos+'" x1="0" y1="0" x2="0" y2="1">'+
+   '<stop offset="0" stop-color="'+c[0]+'"/><stop offset="1" stop-color="'+c[1]+'"/></linearGradient></defs>'+
+   '<path d="M17 11 h-9 a11 11 0 0 0 12 13" fill="none" stroke="'+c[2]+'" stroke-width="3.4" stroke-linecap="round"/>'+
+   '<path d="M47 11 h9 a11 11 0 0 1 -12 13" fill="none" stroke="'+c[2]+'" stroke-width="3.4" stroke-linecap="round"/>'+
+   '<path d="M17 7 h30 v15 a15 15 0 0 1 -30 0 z" fill="url(#tr'+suf+pos+')" stroke="'+c[2]+'" stroke-width="2.4" stroke-linejoin="round"/>'+
+   '<rect x="28" y="36" width="8" height="8" fill="'+c[1]+'"/>'+
+   '<rect x="20" y="43" width="24" height="7" rx="3" fill="url(#tr'+suf+pos+')" stroke="'+c[2]+'" stroke-width="2.2"/>'+
+   '<rect x="14" y="50" width="36" height="9" rx="3.5" fill="url(#tr'+suf+pos+')" stroke="'+c[2]+'" stroke-width="2.2"/>'+
+   '<text x="32" y="26" font-size="17" font-weight="800" fill="'+c[2]+'" text-anchor="middle" font-family="Nunito,system-ui,sans-serif">'+pos+'</text>'+
+   '</svg>';
+}
+function esc(s){ return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+function copiar(txt,btn,okTxt){
+  const done=()=>{ if(btn){ const o=btn.textContent; btn.textContent=okTxt||'✓ Copiado';
+    setTimeout(()=>btn.textContent=o,1600);} Snd.correct(); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done,()=>fallback());
+  } else fallback();
+  function fallback(){
+    const ta=document.createElement('textarea'); ta.value=txt;
+    ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta);
+    ta.select(); try{ document.execCommand('copy'); done(); }catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+
+/* ============================================================
+   EVENTOS
+   ============================================================ */
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');
+  if(g){ Snd.unlock(); go(g.getAttribute('data-go')); }
+},true);
+$$('.mode').forEach(m=>m.addEventListener('keydown',e=>{
+  if(e.key==='Enter'||e.key===' '){ e.preventDefault(); m.click(); }
+}));
+
+$('#btnHome').addEventListener('click',()=>go('home'));
+$('#btnTheme').addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const dark = cur==='dark' || (!cur && matchMedia('(prefers-color-scheme: dark)').matches);
+  const next = dark?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  store.set('pj_theme',next); syncThemeIcon(); Snd.click();
+});
+$('#btnSound').addEventListener('click',function(){
+  Snd.unlock(); const on=Snd.toggle(); this.textContent=on?'🔊':'🔇';
+});
+$('#btnSound').textContent = Snd.isOn()?'🔊':'🔇';
+
+$('#btnStartTrivia').addEventListener('click',()=>{ Snd.unlock(); startTrivia(); });
+$('#inpName').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#btnStartTrivia').click(); });
+$('#inpName').value = store.get('pj_name','');
+$('#btnRetry').addEventListener('click',()=>go('setup'));
+$('#btnCopy').addEventListener('click',function(){ copiar(T.code,this,'✓ Copiado'); });
+$('#btnShareCode').addEventListener('click',()=>{
+  const txt='Terminé la trivia de Polímeros: '+T.aciertos+'/'+PREGUNTAS.length+' en '+fmtTime(Math.round(T.tiempoTotal))+'.\nMi código: '+T.code;
+  if(navigator.share) navigator.share({title:'Polímeros en Juego',text:txt}).catch(()=>{});
+  else copiar(txt,$('#btnShareCode'),'✓ Copiado');
+});
+
+$('#btnStartQuiz').addEventListener('click',()=>{ Snd.unlock(); startQuiz(); });
+$('#btnRetryQuiz').addEventListener('click',()=>go('quizintro'));
+
+let cardBlob=null;
+const EMBEBIDO = (function(){ try{ return window.self!==window.top; }catch(e){ return true; } })();
+if(EMBEBIDO){ $('#btnDownload').style.display='none'; }
+$('#btnCard').addEventListener('click',()=>{
+  const cv=generarCarta();
+  $('#cardImg').src=cv.toDataURL('image/png');
+  cv.toBlob(b=>cardBlob=b,'image/png');
+  $('#imgModal').classList.add('open'); Snd.level();
+});
+$('#btnCloseModal').addEventListener('click',()=>$('#imgModal').classList.remove('open'));
+$('#imgModal').addEventListener('click',e=>{ if(e.target===$('#imgModal')) $('#imgModal').classList.remove('open'); });
+$('#btnDownload').addEventListener('click',()=>{
+  const a=document.createElement('a');
+  a.href=$('#cardImg').src;
+  a.download='soy-'+(POLIMEROS[Q.res]?POLIMEROS[Q.res].n.toLowerCase():'polimero')+'.png';
+  document.body.appendChild(a); a.click(); a.remove();
+});
+$('#btnShareImg').addEventListener('click',async()=>{
+  try{
+    if(cardBlob && navigator.canShare){
+      const f=new File([cardBlob],'polimero.png',{type:'image/png'});
+      if(navigator.canShare({files:[f]})){ await navigator.share({files:[f],title:'¿Qué polímero sos?'}); return; }
+    }
+  }catch(e){}
+  alert('Mantené presionada la imagen y elegí "Guardar" o "Compartir".');
+});
+
+/* ---------- Panel del docente: pestañas, sala y QR ---------- */
+$$('.tabb').forEach(b=>b.addEventListener('click',()=>{
+  $$('.tabb').forEach(x=>x.classList.toggle('active',x===b));
+  const t=b.dataset.tab;
+  $('#tab-vivo').hidden = t!=='vivo';
+  $('#tab-cod').hidden  = t!=='cod';
+  Snd.click();
+  if(t==='vivo') liveTab();
+}));
+$('#btnLiveCfg').addEventListener('click',()=>{ liveSetup(); Snd.click(); });
+$('#btnSala').addEventListener('click',salaAbrir);
+$('#btnSalaX').addEventListener('click',salaCerrar);
+$('#btnSalaUrl').addEventListener('click',salaPedirUrl);
+
+function urlJuego(){
+  let u=store.get('pj_url','');
+  if(!u && /^https?:/.test(location.href)) u=location.href.split('#')[0];
+  return u;
+}
+function salaPedirUrl(){
+  const actual=urlJuego();
+  const u=prompt('Dirección del juego que van a escanear los alumnos.\n\nTiene que ser una dirección que abra el juego desde el celular (por ejemplo la de GitHub Pages o la del link publicado).', actual||'https://');
+  if(u===null) return;
+  store.set('pj_url',u.trim());
+  salaPintarQR();
+}
+function salaPintarQR(){
+  const u=urlJuego();
+  const box=$('#salaQR'), lbl=$('#salaUrl');
+  if(!u){
+    box.innerHTML='<div style="padding:30px;color:#151B3B;font-weight:800">Falta cargar la dirección del juego</div>';
+    lbl.textContent='—'; return;
+  }
+  try{ box.innerHTML=QR.svg(u,{quiet:3}); lbl.textContent=u; }
+  catch(e){ box.innerHTML='<div style="padding:30px;color:#151B3B;font-weight:800">La dirección es demasiado larga para el QR</div>'; lbl.textContent=u; }
+}
+function salaAbrir(){
+  salaPintarQR();
+  $('#salaWrap').classList.add('open');
+  const el=document.documentElement;
+  if(el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+  if(LIVE.url) liveConectar(true); else liveRenderVacio();
+  Snd.level();
+}
+function salaCerrar(){
+  $('#salaWrap').classList.remove('open');
+  if(document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+}
+function liveRenderVacio(){
+  const h='<div class="glass pad center"><div style="font-size:44px">📡</div>'+
+    '<div class="h2">El ranking en vivo no está conectado</div>'+
+    '<p class="muted">Los alumnos igual pueden escanear y jugar: al terminar les queda su código para pasarte.</p></div>';
+  const a=$('#salaBody'); if(a) a.innerHTML=h;
+}
+
+/* ---------- Laboratorio de Compuestos ---------- */
+$('#inpName3').value = store.get('pj_name','');
+$('#btnLabStart').addEventListener('click',()=>{ Snd.unlock(); labIniciar(); });
+$('#inpName3').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#btnLabStart').click(); });
+$('#labSalir').addEventListener('click',()=>{ if(confirm('¿Salir del juego? Se pierde el progreso del lote.')){ Escena.stop(); go('home'); } });
+$('#btnLabAgain').addEventListener('click',()=>go('labintro'));
+$('#btnLabCopy').addEventListener('click',function(){ copiar(L.code,this,'✓ Copiado'); });
+
+$('#btnRank').addEventListener('click',()=>{ Snd.unlock(); calcularRanking(); });
+$('#btnClear').addEventListener('click',()=>{ $('#pasteBox').value=''; $('#rankOut').innerHTML=''; Snd.click(); });
+$('#btnDemo').addEventListener('click',()=>{
+  const demo=[['Ana Bertoni',15,15,3820,214],['Marcos Silva',14,15,3510,238],['Luis Gómez',14,15,3460,251],
+              ['Julieta Paz',12,15,3105,266],['Nahuel Ruiz',11,15,2740,279],['Sofía Chávez',9,15,2380,301]];
+  const demoLab=[['Ana Bertoni',3,3,3480,268],['Luis Gómez',3,3,3120,341],['Julieta Paz',2,3,1890,297],['Marcos Silva',3,3,2950,402]];
+  $('#pasteBox').value = demo.map(d=>hacerCodigo({n:d[0],a:d[1],q:d[2],p:d[3],t:d[4],f:'2026-08-30',m:'T'})).join('\n')
+    + '\n' + demoLab.map(d=>hacerCodigo({n:d[0],a:d[1],q:d[2],p:d[3],t:d[4],f:'2026-08-30',m:'L'})).join('\n')
+    + '\nPM-ESTE-CODIGO-FUE-EDITADO-XXXX';
+  Snd.click();
+});
+
+document.addEventListener('keydown',e=>{
+  if($('#s-trivia').classList.contains('active') && !$('#fbslot').children.length){
+    const k=['1','2','3','4'].indexOf(e.key), l=['a','b','c','d'].indexOf(e.key.toLowerCase());
+    const i = k>=0?k:l;
+    if(i>=0){ const b=$$('#opts .opt')[i]; if(b&&!b.disabled) b.click(); }
+  }
+  if(e.key==='Enter'){ const n=$('#btnNext'); if(n) n.click(); }
+  if(e.key==='Escape') $('#imgModal').classList.remove('open');
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',syncThemeIcon);
+document.addEventListener('pointerdown',()=>Snd.unlock(),{once:true});
+
+/* ============================================================
+   RANKING EN VIVO — se conecta a una planilla de Google Sheets
+   a través de un Google Apps Script publicado como aplicación web.
+   Si no hay conexión, la app sigue funcionando con los códigos.
+   ============================================================ */
+
+const LIVE = {
+  get url(){ return store.get('pj_ep',''); },
+  get token(){ return store.get('pj_tk','polimeros2026'); },
+  guardar(u,t){ store.set('pj_ep',(u||'').trim()); store.set('pj_tk',(t||'polimeros2026').trim()); },
+  borrar(){ store.set('pj_ep',''); }
+};
+
+let liveTimer=null, liveVistos={}, liveUltimo=0, liveFallos=0;
+
+/* ---------- El alumno manda su resultado ---------- */
+function enviarResultado(r){
+  const url=LIVE.url;
+  const box=$('#envio'+(r.modo==='L'?'Lab':'Triv'));
+  if(!url){ if(box) box.innerHTML='<span class="envio off">Pasale tu código al profe</span>'; return; }
+  if(box) box.innerHTML='<span class="envio wait">Enviando al ranking del aula…</span>';
+  fetch(url,{
+    method:'POST', redirect:'follow',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({token:LIVE.token, nombre:r.nombre, modo:r.modo,
+      aciertos:r.aciertos, total:r.total, puntos:r.puntos, tiempo:r.tiempo})
+  })
+  .then(res=>res.json())
+  .then(j=>{
+    if(box) box.innerHTML = (j&&j.ok)
+      ? '<span class="envio ok">✓ Ya estás en el ranking del aula</span>'
+      : '<span class="envio bad">No entró en el ranking. Pasale tu código al profe.</span>';
+  })
+  .catch(()=>{ if(box) box.innerHTML='<span class="envio bad">Sin conexión con el ranking. Pasale tu código al profe.</span>'; });
+}
+
+/* ---------- El docente mira el ranking en vivo ---------- */
+function liveEstado(txt, clase){
+  const e=$('#liveEstado'); if(e){ e.textContent=txt; e.className='livedot '+(clase||''); }
+}
+
+function liveConectar(auto){
+  if(!LIVE.url){ liveSetup(); return; }
+  $('#liveBody').innerHTML='<div class="center muted pad">Conectando con la planilla…</div>';
+  liveVistos={}; liveFallos=0;
+  liveTraer(true);
+  if(liveTimer) clearInterval(liveTimer);
+  liveTimer=setInterval(()=>liveTraer(false), 6000);
+  if(!auto) Snd.level();
+}
+function liveDesconectar(){
+  if(liveTimer){ clearInterval(liveTimer); liveTimer=null; }
+}
+
+function liveTraer(primera){
+  fetch(LIVE.url+(LIVE.url.indexOf('?')>=0?'&':'?')+'t='+Date.now(), {redirect:'follow'})
+    .then(r=>r.json())
+    .then(j=>{
+      if(!j||!j.ok) throw new Error('respuesta inválida');
+      liveFallos=0; liveUltimo=Date.now();
+      liveRender(j.rows||[], primera);
+      liveEstado('En vivo · '+new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),'on');
+    })
+    .catch(err=>{
+      liveFallos++;
+      liveEstado('Sin conexión ('+liveFallos+')','off');
+      if(liveFallos===1 && primera){
+        $('#liveBody').innerHTML='<div class="glass pad center"><div class="h2">No pude leer la planilla</div>'+
+          '<p class="muted">Revisá que la dirección termine en <code>/exec</code> y que al publicar el script hayas elegido acceso <b>“Cualquier persona”</b>. '+
+          'Probá abrir la dirección en una pestaña: tiene que mostrarte un texto que arranca con <code>{"ok":true</code>.</p>'+
+          '<div class="row mt" style="justify-content:center"><button class="btn sm ghost" id="liveCfg">⚙ Cambiar la dirección</button></div></div>';
+        const c=$('#liveCfg'); if(c) c.addEventListener('click',liveSetup);
+      }
+    });
+}
+
+function liveNormalizar(rows){
+  const out=[], vistos={};
+  rows.forEach(r=>{
+    const nombre=String(r.nombre||'').trim(); if(!nombre) return;
+    const modo = String(r.modo||'T').toUpperCase()==='L' ? 'L' : 'T';
+    const reg={nombre:nombre, modo:modo,
+      aciertos:+r.aciertos||0, total:+r.total||(modo==='L'?3:15),
+      puntos:+r.puntos||0, tiempo:+r.tiempo||0};
+    const k=modo+'|'+nombre.toLowerCase();
+    if(vistos[k]!==undefined){
+      const prev=out[vistos[k]];
+      const mejor = modo==='L' ? reg.puntos>prev.puntos
+        : (reg.aciertos>prev.aciertos)||(reg.aciertos===prev.aciertos&&reg.tiempo<prev.tiempo);
+      if(mejor) out[vistos[k]]=reg;
+    }else{ vistos[k]=out.length; out.push(reg); }
+  });
+  return out;
+}
+
+function liveRender(rows, primera){
+  const v=liveNormalizar(rows);
+  const grupos=[
+    {k:'T', t:'Trivia de la Cátedra', col:'#FF3CAC',
+     sort:(a,b)=> b.aciertos-a.aciertos || a.tiempo-b.tiempo || b.puntos-a.puntos,
+     colScore:'Aciertos', val:p=>p.aciertos+'/'+p.total},
+    {k:'L', t:'Laboratorio de Compuestos', col:'#06D6A0',
+     sort:(a,b)=> b.puntos-a.puntos || b.aciertos-a.aciertos || a.tiempo-b.tiempo,
+     colScore:'Niveles', val:p=>p.aciertos+'/'+p.total}
+  ];
+  let html='', nuevos=[];
+  v.forEach(p=>{ const k=p.modo+'|'+p.nombre.toLowerCase();
+    if(!liveVistos[k]){ liveVistos[k]=1; if(!primera) nuevos.push(p.nombre); } });
+
+  if(!v.length){
+    html='<div class="glass pad center"><div style="font-size:46px">📡</div>'+
+      '<div class="h2">Esperando a los primeros</div>'+
+      '<p class="muted">Apenas alguien termine una partida, su nombre aparece acá solo. No hace falta pegar nada.</p></div>';
+  }else{
+    grupos.forEach(G=>{
+      const g=v.filter(x=>x.modo===G.k); if(!g.length) return;
+      g.sort(G.sort);
+      html+=bloqueRanking(g,G);
+    });
+  }
+  $('#liveBody').innerHTML=html;
+  const sb=$('#salaBody'); if(sb) sb.innerHTML=html;
+  const sc=$('#salaCant'); if(sc) sc.textContent=v.length+' participante'+(v.length!==1?'s':'');
+  $('#liveCant').textContent=v.length+' participante'+(v.length!==1?'s':'');
+
+  if(nuevos.length){
+    Snd.correct(); Confetti.burst(innerWidth/2, innerHeight*0.3);
+    const t=$('#liveNuevo');
+    if(t){ t.textContent='🎉 Llegó '+nuevos.join(', '); t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'),4000); }
+  }
+}
+
+/* ---------- Configuración ---------- */
+function liveSetup(){
+  $('#liveBody').innerHTML=
+   '<div class="glass pad">'+
+    '<div class="h2">Conectar el ranking en vivo</div>'+
+    '<p class="muted">Se hace una sola vez y queda guardado en esta computadora. Son cinco minutos.</p>'+
+    '<ol class="pasos">'+
+      '<li>Entrá a <b>sheets.new</b> y creá una planilla vacía. Ponele el nombre que quieras.</li>'+
+      '<li>En el menú <b>Extensiones → Apps Script</b>. Se abre un editor con un archivo <code>Código.gs</code>.</li>'+
+      '<li>Borrá todo lo que hay y pegá el script de acá abajo. Guardá con el disquete.</li>'+
+      '<li>Botón azul <b>Implementar → Nueva implementación</b>. Tipo: <b>Aplicación web</b>. '+
+          'Ejecutar como: <b>Yo</b>. Quién tiene acceso: <b>Cualquier persona</b>. Implementar.</li>'+
+      '<li>Google te pide autorizar: aceptá (va a decir que la app no está verificada, es tu propio script; '+
+          'entrá en “Configuración avanzada” y continuá).</li>'+
+      '<li>Copiá la <b>dirección de la aplicación web</b> (termina en <code>/exec</code>) y pegala acá abajo.</li>'+
+    '</ol>'+
+    '<div class="row mt"><button class="btn sm cyan" id="liveCopyScript">📋 Copiar el script</button></div>'+
+    '<div class="divider"></div>'+
+    '<label class="lbl2">Dirección de la aplicación web</label>'+
+    '<input class="nm" id="liveUrl" placeholder="https://script.google.com/macros/s/…/exec" value="'+esc(LIVE.url)+'">'+
+    '<label class="lbl2 mt">Clave (tiene que ser igual a la del script)</label>'+
+    '<input class="nm" id="liveTk" value="'+esc(LIVE.token)+'">'+
+    '<div class="dato mt">⚠️ Importante: para que los celulares puedan mandar el resultado, la app tiene que estar '+
+      'subida a un hosting común (por ejemplo GitHub Pages o Netlify) o abrirse desde el archivo. '+
+      'Desde el link de claude.ai las llamadas a Google quedan bloqueadas y solo funciona el modo por códigos.</div>'+
+    '<div class="row mt2"><button class="btn ghost sm" id="liveCancel">Cancelar</button>'+
+      '<div class="spacer"></div><button class="btn green" id="liveSave">Guardar y conectar</button></div>'+
+   '</div>';
+  const cs=$('#liveCopyScript');
+  if(cs) cs.addEventListener('click',function(){ copiar(SCRIPT_GS,this,'✓ Script copiado'); });
+  $('#liveCancel').addEventListener('click',()=>liveTab());
+  $('#liveSave').addEventListener('click',()=>{
+    const u=$('#liveUrl').value.trim();
+    if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(u)){
+      shake($('#liveUrl')); Snd.wrong();
+      $('#liveUrl').focus(); return;
+    }
+    LIVE.guardar(u,$('#liveTk').value);
+    liveConectar(false);
+  });
+}
+
+function liveTab(){
+  if(LIVE.url) liveConectar(true);
+  else liveSetup();
+}
+
+/* ---------- Modo proyector ---------- */
+function proyector(on){
+  document.body.classList.toggle('proy',on);
+  if(on){ const el=document.documentElement;
+    if(el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+  }else if(document.fullscreenElement && document.exitFullscreen){ document.exitFullscreen().catch(()=>{}); }
+}
+
+/* ---------- Script de Google Apps Script ---------- */
+const SCRIPT_GS = [
+'/**',
+' * POLÍMEROS EN JUEGO — ranking en vivo',
+' * Cátedra de Conocimiento de los Materiales',
+' *',
+' * Pegá esto en Extensiones > Apps Script de una planilla vacía,',
+' * guardá y publicalo como Aplicación web con acceso "Cualquier persona".',
+' */',
+'',
+'const CLAVE = "polimeros2026";   // tiene que ser igual a la de la app',
+'const HOJA  = "resultados";',
+'',
+'function hoja() {',
+'  const libro = SpreadsheetApp.getActiveSpreadsheet();',
+'  let sh = libro.getSheetByName(HOJA);',
+'  if (!sh) {',
+'    sh = libro.insertSheet(HOJA);',
+'    sh.appendRow(["fecha", "nombre", "modo", "aciertos", "total", "puntos", "tiempo_s"]);',
+'  }',
+'  return sh;',
+'}',
+'',
+'function json(o) {',
+'  return ContentService.createTextOutput(JSON.stringify(o))',
+'    .setMimeType(ContentService.MimeType.JSON);',
+'}',
+'',
+'function doPost(e) {',
+'  try {',
+'    const d = JSON.parse(e.postData.contents);',
+'    if (d.token !== CLAVE) return json({ ok: false, err: "clave incorrecta" });',
+'    const nombre = String(d.nombre || "").trim().slice(0, 40);',
+'    if (!nombre) return json({ ok: false, err: "sin nombre" });',
+'    hoja().appendRow([',
+'      new Date(), nombre, (d.modo === "L" ? "L" : "T"),',
+'      Number(d.aciertos) || 0, Number(d.total) || 0,',
+'      Number(d.puntos) || 0, Number(d.tiempo) || 0',
+'    ]);',
+'    return json({ ok: true });',
+'  } catch (err) {',
+'    return json({ ok: false, err: String(err) });',
+'  }',
+'}',
+'',
+'function doGet(e) {',
+'  const p = (e && e.parameter) || {};',
+'',
+'  // Reiniciar la ronda:  ...../exec?accion=reset&token=polimeros2026',
+'  if (p.accion === "reset") {',
+'    if (p.token !== CLAVE) return json({ ok: false, err: "clave incorrecta" });',
+'    const sh = hoja();',
+'    if (sh.getLastRow() > 1) sh.deleteRows(2, sh.getLastRow() - 1);',
+'    return json({ ok: true, rows: [] });',
+'  }',
+'',
+'  const sh = hoja();',
+'  const vals = sh.getDataRange().getValues();',
+'  vals.shift();',
+'  const rows = vals.map(function (r) {',
+'    return {',
+'      nombre: r[1], modo: r[2], aciertos: r[3],',
+'      total: r[4], puntos: r[5], tiempo: r[6]',
+'    };',
+'  });',
+'  return json({ ok: true, rows: rows });',
+'}'
+].join('\n');
+
+</script>
+</body>
+</html>
