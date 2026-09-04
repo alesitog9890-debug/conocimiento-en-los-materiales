@@ -355,6 +355,23 @@ table.tabla tr.top td{background:linear-gradient(90deg,rgba(250,204,21,.10),tran
 .tiembla{animation:tembleque .5s cubic-bezier(.36,.07,.19,.97) both}
 .pie{text-align:center;color:var(--ink3);font-size:12px;font-weight:700;padding:24px 10px 6px;line-height:1.7;letter-spacing:.4px}
 
+/* ================= SELECTOR DE PISTA ================= */
+.pistas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:11px;margin-top:10px}
+.pista-card{
+  text-align:center;width:100%;cursor:pointer;position:relative;overflow:hidden;
+  padding:13px 14px;border-radius:16px;border:2px solid var(--brd2);
+  background:rgba(0,0,0,.3);color:var(--ink);
+  box-shadow:0 5px 0 -1px rgba(0,0,0,.55);
+  transition:transform .1s,box-shadow .1s,border-color .2s,background .2s;
+}
+.pista-card:hover{transform:translateY(-2px);border-color:var(--brd)}
+.pista-card:active{transform:translateY(4px);box-shadow:none}
+.pista-card.sel{border-color:var(--cyan);background:linear-gradient(100deg,rgba(0,240,255,.14),rgba(0,0,0,.3))}
+.pista-card h4{margin:0;font-family:var(--f-d);font-weight:700;font-size:13.5px;letter-spacing:.4px}
+.pista-card .pdesc{margin:4px 0 0;color:var(--ink2);font-size:12.5px;line-height:1.4;font-weight:600}
+.pista-card .pdif{margin-top:5px;color:var(--yellow);font-size:11.5px;letter-spacing:.5px}
+.pista-card .pista-mini{display:block;margin:6px auto 2px}
+
 @media (max-width:520px){
   .wrap{padding:10px 10px 74px}
   .barras{width:52%}
@@ -411,6 +428,11 @@ table.tabla tr.top td{background:linear-gradient(90deg,rgba(250,204,21,.10),tran
         <div class="cont total"><b id="cPuntos">0</b><span>Puntos de interacción</span><em>del juego</em></div>
       </div>
 
+      <div class="mt2">
+        <label class="lab">Elegí tu circuito</label>
+        <div class="pistas-grid" id="pistasGrid"></div>
+      </div>
+
       <div class="fila mt2">
         <button class="btn gris ch" id="bVerFicha">📘 Ficha técnica</button>
         <button class="btn gris ch" id="bVerProfe">🎓 Panel del profesor</button>
@@ -459,6 +481,7 @@ table.tabla tr.top td{background:linear-gradient(90deg,rgba(250,204,21,.10),tran
     <div class="tarjeta neon p">
       <div class="etiq">Hoja de ruta de fabricación</div>
       <h2 class="h">Tu coche salió de la línea</h2>
+      <div id="rPista" style="margin-bottom:10px"></div>
       <div class="resumen" id="rResumen"></div>
       <div id="rBonus"></div>
       <div class="sep"></div>
@@ -1090,17 +1113,49 @@ const CODIGOS_REC = [
  ['4','PEBD','Films'],['5','PP','Tapas'],['6','PS','Bandejas'],['7','Otros','Mezclas']
 ];
 
+const PISTAS = [
+  {
+    id:'clasico', nombre:'Circuito Clásico',
+    desc:'La pista original, más grande. Equilibrada en curvas y rectas.',
+    dificultad:1, mundo:{w:3200,h:2400}, ancho:240, vueltas:3, yScale:0.80, tiempoLimite:240,
+    radio:function(a){ return 850 + 250*Math.cos(2*a) + 140*Math.sin(3*a) - 60*Math.cos(5*a); },
+    baches:[26,27,58,84,85,86,132,133,171,198,199,234,262,263,291,318,340]
+  },
+  {
+    id:'ovalo', nombre:'Óvalo de Velocidad',
+    desc:'Curvas abiertas y rectas largas. La velocidad punta lo decide todo.',
+    dificultad:1, mundo:{w:4000,h:2400}, ancho:260, vueltas:3, yScale:0.65, tiempoLimite:240,
+    radio:function(a){ return 1100 + 500*Math.cos(2*a) + 60*Math.sin(4*a); },
+    baches:[30,60,90,150,180,210,270,300,330]
+  },
+  {
+    id:'serpentina', nombre:'Serpentina Técnica',
+    desc:'Curvas cerradas en S que castigan el mal agarre. Muchos baches.',
+    dificultad:2, mundo:{w:3600,h:2800}, ancho:220, vueltas:3, yScale:0.85, tiempoLimite:300,
+    radio:function(a){ return 800 + 200*Math.cos(3*a) + 170*Math.sin(5*a) + 120*Math.cos(7*a) - 90*Math.sin(2*a); },
+    baches:[15,30,45,60,75,100,120,140,160,180,200,215,230,250,270,285,300,315,330,345]
+  },
+  {
+    id:'granpremio', nombre:'Gran Premio Polímero',
+    desc:'El más largo y exigente. Rectas, chicanas y todo tipo de curvas.',
+    dificultad:3, mundo:{w:4400,h:3000}, ancho:240, vueltas:2, yScale:0.82, tiempoLimite:300,
+    radio:function(a){ return 1100 + 350*Math.cos(2*a) + 230*Math.sin(3*a) - 140*Math.cos(4*a) + 90*Math.sin(6*a); },
+    baches:[20,40,55,70,90,110,130,150,170,185,200,220,240,255,275,295,310,325,345]
+  }
+];
+
 /* ============================================================
    POLYMER RACER — motor de carrera (Canvas 2D nativo)
    ============================================================ */
 const Juego = (function(){
 
-  const MUNDO={w:2800,h:2000};
-  const CENTRO={x:1400,y:1000};
+  let MUNDO={w:3200,h:2400};
+  let CENTRO={x:MUNDO.w/2,y:MUNDO.h/2};
   const N=360;
-  const ANCHO=230;          // ancho total de la pista
-  const MEDIO=ANCHO/2;
-  const VUELTAS=3;
+  let ANCHO=240;
+  let MEDIO=ANCHO/2;
+  let VUELTAS=3;
+  let tiempoLimite=240;
 
   let via=[], bordeIzq=[], bordeDer=[], largoTotal=0;
   let baches=[];
@@ -1111,12 +1166,19 @@ const Juego = (function(){
   let particulas=[], marcas=[], humo=[];
 
   /* ---------------- PISTA ---------------- */
-  function generarPista(){
+  function generarPista(pista){
+    if(!pista) pista=(typeof PISTAS!=='undefined')?PISTAS[0]:null;
+    if(pista){
+      MUNDO=pista.mundo; CENTRO={x:MUNDO.w/2,y:MUNDO.h/2};
+      ANCHO=pista.ancho||240; MEDIO=ANCHO/2; VUELTAS=pista.vueltas||3;
+      tiempoLimite=pista.tiempoLimite||240;
+    }
     via=[];
     for(let i=0;i<N;i++){
       const a=i/N*Math.PI*2;
-      const r=750 + 220*Math.cos(2*a) + 120*Math.sin(3*a) - 50*Math.cos(5*a);
-      via.push({x:CENTRO.x+Math.cos(a)*r, y:CENTRO.y+Math.sin(a)*r*0.80});
+      const r=pista?pista.radio(a):(850+250*Math.cos(2*a)+140*Math.sin(3*a)-60*Math.cos(5*a));
+      const ys=pista?pista.yScale:0.80;
+      via.push({x:CENTRO.x+Math.cos(a)*r, y:CENTRO.y+Math.sin(a)*r*ys});
     }
     largoTotal=0;
     for(let i=0;i<N;i++){
@@ -1141,7 +1203,7 @@ const Juego = (function(){
       bordeDer.push({x:p.x-nx*MEDIO, y:p.y-ny*MEDIO});
     }
     baches=[];
-    const pos=[26,27,58,84,85,86,132,133,171,198,199,234,262,263,291,318,340];
+    const pos=pista?pista.baches:[26,27,58,84,85,86,132,133,171,198,199,234,262,263,291,318,340];
     pos.forEach((i,k)=>{
       const p=via[i%N];
       const off=((k*37)%100-50)/100*MEDIO*0.95;
@@ -1195,7 +1257,7 @@ const Juego = (function(){
     cb=callbacks||{};
     cv=document.getElementById('lienzo'); cx=cv.getContext('2d');
     mv=document.getElementById('lienzoMapa'); mx=mv.getContext('2d');
-    if(!via.length) generarPista();
+    generarPista(cfg.pista);
     medir();
     window.addEventListener('resize',medir);
 
@@ -1267,7 +1329,7 @@ const Juego = (function(){
       if(est.cuenta<=0){ est.estado='corre'; }
     }else if(est.estado==='corre'){
       est.tiempo+=dt; est.tVuelta+=dt;
-      if(est.tiempo>240){ terminar('tiempo'); return; }
+      if(est.tiempo>tiempoLimite){ terminar('tiempo'); return; }
       if(est.boxes){ boxesTick(dt); }
       else { fisica(dt); }
       rivalesTick(dt);
@@ -1944,7 +2006,7 @@ function leerCodigo(c){
 }
 
 /* ================= TALLER ================= */
-let sel=[null,null,null,null], pasoAct=0, cfgActual=null;
+let sel=[null,null,null,null], pasoAct=0, cfgActual=null, pistaIdx=0;
 
 function pintarPasos(){
   $('#pasos').innerHTML=PIEZAS.map((p,i)=>
@@ -1985,7 +2047,7 @@ function armarConfig(){
     frontal:car.ef.frontal, memoria:car.ef.memoria, fragFrontal:car.ef.fragmentos,
     trasero:par.ef.trasero, transfer:par.ef.transfer, fragTrasero:par.ef.fragmentos,
     absorcion:cas.ef.absorcion, hp:cas.ef.hp,
-    colorAuto:'#00f0ff', bonus:opt,
+    colorAuto:'#00f0ff', bonus:opt, pista:PISTAS[pistaIdx],
     piezas:{neu:neu, car:car, par:par, cas:cas}
   };
 }
@@ -1993,6 +2055,8 @@ function armarConfig(){
 function pintarResumen(){
   cfgActual=armarConfig();
   const c=cfgActual;
+  const pistaInfo=c.pista||PISTAS[0];
+  $('#rPista').innerHTML='<div class="rz" style="border-color:rgba(0,240,255,.4);background:rgba(0,240,255,.08)"><div class="k">🏁 Circuito</div><div class="v">'+pistaInfo.nombre+'</div><div class="k" style="margin-top:3px">'+pistaInfo.vueltas+' vueltas · '+'⭐'.repeat(pistaInfo.dificultad)+'</div></div>';
   $('#rResumen').innerHTML=PIEZAS.map((P,i)=>{
     const o=P.op[sel[i]];
     return '<div class="rz'+(o.optima?' opt':'')+'"><div class="k">'+P.icono+' '+P.nombre+'</div>'+
@@ -2118,8 +2182,8 @@ function terminarCarrera(r){
     $('#pSub').textContent='La vida del piloto llegó a cero. Con ese casco, cada impacto le llegó entero: la calota reparte, pero la que frena la cabeza es la espuma.';
   }else if(r.motivo==='tiempo'){
     $('#pEtiq').textContent='Carrera cerrada por tiempo';
-    $('#pTitulo').textContent='Se agotaron los 4 minutos';
-    $('#pSub').textContent='Entre roturas y paradas en boxes no llegaste a completar las tres vueltas. Revisá abajo qué pieza te frenó: casi siempre es el proceso, no el manejo.';
+    $('#pTitulo').textContent='Se agotó el tiempo';
+    $('#pSub').textContent='Entre roturas y paradas en boxes no llegaste a completar las '+(cfgActual&&cfgActual.pista?cfgActual.pista.vueltas:3)+' vueltas. Revisá abajo qué pieza te frenó: casi siempre es el proceso, no el manejo.';
   }else if(r.motivo==='abandono'){
     $('#pEtiq').textContent='Carrera abandonada';
     $('#pTitulo').textContent='Abandonaste la carrera';
@@ -2364,6 +2428,35 @@ function compartir(){
   else copiar(t+(u?('\n'+u):''), null);
 }
 
+/* ================= SELECTOR DE PISTAS ================= */
+function previewSVG(pista){
+  const pts=[],NP=100;
+  for(let i=0;i<NP;i++){
+    const a=i/NP*Math.PI*2, r=pista.radio(a);
+    pts.push({x:Math.cos(a)*r, y:Math.sin(a)*r*pista.yScale});
+  }
+  let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
+  pts.forEach(p=>{x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);y0=Math.min(y0,p.y);y1=Math.max(y1,p.y);});
+  const pad=80,rw=x1-x0+pad*2,rh=y1-y0+pad*2;
+  const d=pts.map((p,i)=>(i?'L':'M')+((p.x-x0+pad)*160/rw).toFixed(1)+' '+((p.y-y0+pad)*90/rh).toFixed(1)).join(' ')+'Z';
+  return '<svg viewBox="0 0 160 90" class="pista-mini" aria-hidden="true">'+
+    '<path d="'+d+'" fill="none" stroke="rgba(0,240,255,.22)" stroke-width="14" stroke-linejoin="round" stroke-linecap="round"/>'+
+    '<path d="'+d+'" fill="none" stroke="rgba(0,240,255,.65)" stroke-width="1.8" stroke-linejoin="round"/>'+
+    '<circle cx="'+((pts[0].x-x0+pad)*160/rw).toFixed(1)+'" cy="'+((pts[0].y-y0+pad)*90/rh).toFixed(1)+'" r="3" fill="#facc15"/></svg>';
+}
+function pintarPistas(){
+  $('#pistasGrid').innerHTML=PISTAS.map((p,i)=>
+    '<button class="pista-card'+(pistaIdx===i?' sel':'')+'" data-i="'+i+'">'+
+    previewSVG(p)+
+    '<h4>'+p.nombre+'</h4>'+
+    '<div class="pdesc">'+p.desc+'</div>'+
+    '<div class="pdif">'+'⭐'.repeat(p.dificultad)+' · '+p.vueltas+' vueltas</div>'+
+    '</button>').join('');
+  $$('#pistasGrid .pista-card').forEach(b=>b.addEventListener('click',()=>{
+    pistaIdx=+b.dataset.i; Aud.clic(); pintarPistas();
+  }));
+}
+
 /* ================= EVENTOS ================= */
 (function iniciarUI(){
   // selector de número de carrera
@@ -2374,6 +2467,7 @@ function compartir(){
   s.value=alm.get('pr_legajo','1');
   $('#inNombre').value=alm.get('pr_nombre','');
   contar();
+  pintarPistas();
   $('#bSonido').textContent=Aud.activo()?'🔊':'🔇';
 
   $('#bInicio').addEventListener('click',()=>{ Juego.detener(); Aud.pararMotor(); pantalla('s-lobby'); });
