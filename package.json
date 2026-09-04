@@ -1,0 +1,18 @@
+{
+  "name": "polimeros-en-juego",
+  "version": "1.0.0",
+  "description": "Polymer Racer + Polimeros en Juego - Catedra de Conocimiento de los Materiales",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "build": "echo 'No build needed'"
+  },
+  "keywords": [],
+  "author": "alesitog9890-debug",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3"
+  }
+}
