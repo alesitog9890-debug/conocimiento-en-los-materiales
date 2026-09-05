@@ -160,10 +160,10 @@ label.lab{display:block;font-family:var(--f-d);font-size:10.5px;font-weight:700;
 /* ================= PREMIO Y CONTADORES ================= */
 .premio{
   border-radius:16px;padding:14px 16px;margin-top:14px;
-  background:linear-gradient(100deg,rgba(250,204,21,.16),rgba(249,115,22,.10));
-  border:1px solid rgba(250,204,21,.4);
+  background:linear-gradient(100deg,#fef08a,#fde047);
+  border:1px solid #eab308;
   font-family:var(--f-d);font-weight:700;font-size:clamp(12.5px,2.4vw,16px);line-height:1.5;
-  color:#fde68a;text-shadow:0 0 18px rgba(250,204,21,.25);
+  color:#854d0e;
 }
 .contadores{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px}
 .cont{border-radius:14px;padding:12px;text-align:center;background:rgba(0,0,0,.32);border:1px solid var(--brd2)}
@@ -467,6 +467,12 @@ table.tabla tr.top td{background:linear-gradient(90deg,rgba(250,204,21,.10),tran
     <div class="tarjeta neon p">
       <div class="etiq">Taller de procesamiento</div>
       <div class="pasos" id="pasos"></div>
+      
+      <!-- CANVA TALLER 360 -->
+      <div style="text-align:center; margin-bottom:10px;">
+        <canvas id="canvasTaller" width="300" height="150" style="background:linear-gradient(180deg, #e2e8f0, #cbd5e1); border-radius:12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.1); border:1px solid var(--brd2);"></canvas>
+      </div>
+
       <h2 class="h" id="tPieza">—</h2>
       <p class="mudo chico" id="tProceso">—</p>
       <div class="opciones" id="tOpciones"></div>
@@ -1801,58 +1807,90 @@ const Juego = (function(){
     cx.closePath();
   }
 
-  function dibujarAuto(a,jug){
+  function dibujarAuto(a,jug, isTaller){
     cx.save();
     cx.translate(a.x,a.y); cx.rotate(a.ang);
+    
     // sombra
     cx.fillStyle='rgba(0,0,0,.45)';
-    cx.beginPath(); cx.ellipse(2,4,26,15,0,0,6.3); cx.fill();
-    // ruedas
-    cx.fillStyle='#0b0f19';
-    cx.fillRect(-18,-16,12,7); cx.fillRect(-18,9,12,7);
-    cx.fillRect(8,-16,12,7);  cx.fillRect(8,9,12,7);
-    // cuerpo
-    const dan = jug ? (1-est.integridad/100) : 0;
+    cx.beginPath(); cx.ellipse(0,4,28,15,0,0,6.3); cx.fill();
+    
+    // Ruedas (más anchas y salientes)
+    cx.fillStyle='#111'; // Neumático
+    cx.fillRect(-18,-15,10,6); cx.fillRect(-18,9,10,6);
+    cx.fillRect(10,-16,12,7);  cx.fillRect(10,9,12,7); // Traseras más anchas
+    
+    // Detalles llantas
+    cx.fillStyle='#64748b';
+    cx.fillRect(-15,-14,4,4); cx.fillRect(-15,10,4,4);
+    cx.fillRect(13,-15,4,5);  cx.fillRect(13,10,4,5);
+
+    // Ejes / Suspensión
+    cx.fillStyle='#334155';
+    cx.fillRect(-14,-10,4,20);
+    cx.fillRect(12,-10,4,20);
+
+    // Chasis (Cuerpo principal aerodinámico)
     cx.fillStyle=a.color;
-    rr(-24,-13,48,26,7); cx.fill();
-    if(jug && est.invul>0 && Math.floor(est.invul*14)%2===0){
-      cx.strokeStyle='#ef4444'; cx.lineWidth=3; rr(-24,-13,48,26,7); cx.stroke();
+    cx.beginPath();
+    cx.moveTo(-22,-6);
+    cx.lineTo(-10,-10);
+    cx.lineTo(10,-12);
+    cx.lineTo(26,-5); // Trompa
+    cx.lineTo(26,5);
+    cx.lineTo(10,12);
+    cx.lineTo(-10,10);
+    cx.lineTo(-22,6);
+    cx.closePath();
+    cx.fill();
+
+    const dan = (!isTaller && jug && est) ? (1-est.integridad/100) : 0;
+    if(!isTaller && jug && est && est.invul>0 && Math.floor(est.invul*14)%2===0){
+      cx.strokeStyle='#ef4444'; cx.lineWidth=3; cx.stroke();
     }
-    // trompa dañada
+
+    // Daño visual en la trompa
     if(dan>0.25){
-      cx.fillStyle='rgba(0,0,0,'+Math.min(.75,dan)+')';
-      rr(10,-13,14,26,6); cx.fill();
-      cx.strokeStyle='rgba(0,0,0,.8)'; cx.lineWidth=2;
-      cx.beginPath(); cx.moveTo(6,-9); cx.lineTo(14,0); cx.lineTo(4,7); cx.stroke();
+      cx.fillStyle='rgba(0,0,0,'+Math.min(.8,dan)+')';
+      cx.beginPath(); cx.moveTo(14,-8); cx.lineTo(26,-5); cx.lineTo(26,5); cx.lineTo(14,8); cx.closePath(); cx.fill();
+      cx.strokeStyle='rgba(0,0,0,.9)'; cx.lineWidth=2;
+      cx.beginPath(); cx.moveTo(12,-5); cx.lineTo(22,2); cx.lineTo(15,7); cx.stroke();
     }
-    // parabrisas
-    cx.fillStyle='rgba(10,20,35,.85)'; rr(-6,-9,13,18,4); cx.fill();
-    // alerón
-    cx.fillStyle='rgba(255,255,255,.22)'; cx.fillRect(-25,-15,5,30);
-    // luz delantera
-    cx.fillStyle='rgba(255,255,255,.55)'; cx.fillRect(21,-8,3,5); cx.fillRect(21,3,3,5);
+
+    // Pontones laterales (tomas de aire)
+    cx.fillStyle='rgba(0,0,0,0.2)';
+    cx.fillRect(-5,-11,10,4); cx.fillRect(-5,7,10,4);
+
+    // Alerón trasero
+    cx.fillStyle='#1e293b';
+    rr(-25,-12,6,24,2); cx.fill();
+    cx.fillStyle=a.color;
+    rr(-24,-11,4,22,1); cx.fill();
+
+    // Alerón delantero
+    cx.fillStyle='#1e293b';
+    rr(23,-10,4,20,1); cx.fill();
+
+    // Cabina / Cockpit
+    cx.fillStyle='#0f172a';
+    rr(-6,-5,14,10,5); cx.fill();
+    
+    // Casco del piloto
+    cx.fillStyle='#f8fafc';
+    cx.beginPath(); cx.arc(-2,0,3.5,0,6.3); cx.fill();
+    cx.fillStyle='#dc2626'; // Visor
+    cx.fillRect(-1,-2,4,4);
+
+    // Nombre (si es multijugador y no es el jugador local)
+    if(!isTaller && a.nom && a.nom !== 'Jugador'){
+      cx.rotate(Math.PI/2);
+      cx.fillStyle='rgba(255,255,255,0.85)';
+      cx.font='bold 9.5px var(--f-b)';
+      cx.textAlign='center';
+      cx.fillText(a.nom, 0, 36);
+    }
+
     cx.restore();
-    if(jug){
-      const t=performance.now()/300, ofs=Math.sin(t)*3;
-      cx.save();
-      cx.globalAlpha=0.75+0.2*Math.sin(t);
-      cx.fillStyle='#00f0ff';
-      cx.beginPath();
-      cx.moveTo(a.x, a.y-32+ofs);
-      cx.lineTo(a.x-10, a.y-46+ofs);
-      cx.lineTo(a.x+10, a.y-46+ofs);
-      cx.closePath(); cx.fill();
-      cx.globalAlpha=0.30;
-      cx.strokeStyle='#00f0ff'; cx.lineWidth=2.5;
-      cx.beginPath(); cx.arc(a.x,a.y,33,0,6.3); cx.stroke();
-      cx.restore();
-      cx.fillStyle='rgba(0,240,255,.9)'; cx.font='700 13px Rajdhani, sans-serif'; cx.textAlign='center';
-      cx.fillText('VOS', a.x, a.y-50+ofs);
-    }
-    if(!jug && a.nom){
-      cx.fillStyle='rgba(230,241,255,.75)'; cx.font='700 15px Rajdhani, sans-serif'; cx.textAlign='center';
-      cx.fillText(a.nom, a.x, a.y-26);
-    }
   }
   function rr(x,y,w,h,r){
     cx.beginPath(); cx.moveTo(x+r,y); cx.arcTo(x+w,y,x+w,y+h,r);
@@ -2000,6 +2038,36 @@ const Confeti=(function(){
              setTimeout(()=>sembrar(140,innerWidth*0.5,innerHeight*0.32,20),200); } };
 })();
 
+// Animación del Taller
+let rafTaller = null;
+let angTaller = 0;
+function bucleTaller() {
+  const cv = document.getElementById('canvasTaller');
+  if (!cv || cv.offsetParent === null) {
+    if (rafTaller) cancelAnimationFrame(rafTaller);
+    rafTaller = null;
+    return;
+  }
+  const cx = cv.getContext('2d');
+  cx.clearRect(0, 0, cv.width, cv.height);
+  
+  let color = window.miColorAuto || '#00f0ff';
+  if (cfgActual && cfgActual.colorAuto) color = cfgActual.colorAuto;
+  const autoObj = { x: cv.width/2, y: cv.height/2, ang: angTaller, color: color };
+  
+  cx.save();
+  cx.scale(2.2, 2.2);
+  cx.translate(-cv.width/4.4 + 40, -cv.height/4.4 + 20);
+  
+  // Dibujar coche con estado falso para evitar errores si no está inicializado
+  dibujarAuto(autoObj, false, true); 
+  
+  cx.restore();
+  
+  angTaller += 0.015;
+  rafTaller = requestAnimationFrame(bucleTaller);
+}
+
 function destello(bien){ const f=$('#flash'); f.classList.toggle('bien',!!bien); f.classList.add('on');
   setTimeout(()=>f.classList.remove('on'),240); }
 function tiembla(el){ el.classList.remove('tiembla'); void el.offsetWidth; el.classList.add('tiembla'); }
@@ -2060,6 +2128,9 @@ function pintarPaso(){
   pintarPasos();
   $('#tPieza').textContent=P.icono+'  '+P.nombre;
   $('#tProceso').innerHTML='<b style="color:var(--cyan)">'+P.proceso+'</b> — '+P.intro;
+  
+  // Iniciar el render del auto 360 si no está corriendo
+  if(!rafTaller) bucleTaller();
   $('#tOpciones').innerHTML=P.op.map((o,i)=>
     '<button class="opcion'+(sel[pasoAct]===i?' sel':'')+'" data-i="'+i+'">'+
       '<div class="on"><span class="num">'+(i+1)+'</span><h4>'+o.t+'</h4></div>'+
