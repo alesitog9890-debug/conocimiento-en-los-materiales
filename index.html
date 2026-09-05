@@ -1922,8 +1922,25 @@ const Juego = (function(){
     mx.strokeStyle='#fff'; mx.lineWidth=1.2; mx.stroke();
   }
 
+  function dibujarAutoEnTaller(ctxTaller, color, angTaller){
+    const oldCx = cx;
+    cx = ctxTaller;
+    const cvw = ctxTaller.canvas.width;
+    const cvh = ctxTaller.canvas.height;
+    const autoObj = { x: cvw/2, y: cvh/2, ang: angTaller, color: color };
+    
+    cx.save();
+    cx.scale(2.2, 2.2);
+    cx.translate(-cvw/4.4 + 40, -cvh/4.4 + 20);
+    
+    dibujarAuto(autoObj, false, true); 
+    
+    cx.restore();
+    cx = oldCx;
+  }
+
   return {iniciar:iniciar, detener:detener, setTactil:setTactil, abandonar:abandonar, iniciarConteoRed:iniciarConteoRed,
-          generarPista:generarPista, get estado(){ return est; }, get via(){ return via; }};
+          generarPista:generarPista, get estado(){ return est; }, get via(){ return via; }, dibujarAutoEnTaller: dibujarAutoEnTaller};
 })();
 
 /* ============================================================
@@ -2048,21 +2065,15 @@ function bucleTaller() {
     rafTaller = null;
     return;
   }
-  const cx = cv.getContext('2d');
-  cx.clearRect(0, 0, cv.width, cv.height);
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, cv.width, cv.height);
   
   let color = window.miColorAuto || '#00f0ff';
   if (cfgActual && cfgActual.colorAuto) color = cfgActual.colorAuto;
-  const autoObj = { x: cv.width/2, y: cv.height/2, ang: angTaller, color: color };
   
-  cx.save();
-  cx.scale(2.2, 2.2);
-  cx.translate(-cv.width/4.4 + 40, -cv.height/4.4 + 20);
-  
-  // Dibujar coche con estado falso para evitar errores si no está inicializado
-  dibujarAuto(autoObj, false, true); 
-  
-  cx.restore();
+  if (Juego && Juego.dibujarAutoEnTaller) {
+    Juego.dibujarAutoEnTaller(ctx, color, angTaller);
+  }
   
   angTaller += 0.015;
   rafTaller = requestAnimationFrame(bucleTaller);
