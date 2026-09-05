@@ -15,28 +15,28 @@
   --f-d:'Orbitron','Rajdhani',system-ui,-apple-system,'Segoe UI',sans-serif;
   --f-b:'Rajdhani',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 
-  /* Fondo de Laboratorio / Industrial Claro */
-  --bg:#f1f5f9;
-  --bg2:#e2e8f0;
-  --panel:rgba(255,255,255,.75);
-  --panel2:rgba(255,255,255,.95);
-  --brd:rgba(6,182,212,.4);
+  /* Fondo Industrial Oscuro (Alto Contraste para Proyector) */
+  --bg:#0b0f19;
+  --bg2:#1e293b;
+  --panel:rgba(15,23,42,.85);
+  --panel2:rgba(30,41,59,.95);
+  --brd:rgba(0,240,255,.5);
   --brd2:rgba(148,163,184,.3);
 
   /* Acentos de Plástico Vibrante */
-  --cyan:#00a3cc;
-  --orange:#ea580c;
-  --green:#16a34a;
-  --red:#dc2626;
-  --yellow:#ca8a04;
-  --violet:#7c3aed;
+  --cyan:#00f0ff;
+  --orange:#f97316;
+  --green:#22c55e;
+  --red:#ef4444;
+  --yellow:#facc15;
+  --violet:#a78bfa;
 
-  /* Texto oscuro para contraste */
-  --ink:#0f172a;
-  --ink2:#334155;
-  --ink3:#64748b;
+  /* Texto claro para contraste sobre oscuro */
+  --ink:#ffffff;
+  --ink2:#e2e8f0;
+  --ink3:#94a3b8;
 
-  --grid:rgba(15,23,42,.06);
+  --grid:rgba(255,255,255,.07);
 }
 
 *{box-sizing:border-box}
@@ -57,10 +57,9 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 /* ================= FONDO ================= */
 #fondo{position:fixed;inset:0;z-index:-2;
   background:
-    radial-gradient(1000px 620px at 12% -8%, rgba(6,182,212,.15), transparent 62%),
-    radial-gradient(900px 560px at 96% 8%, rgba(249,115,22,.12), transparent 60%),
-    radial-gradient(800px 700px at 50% 118%, rgba(236,72,153,.10), transparent 62%),
-    linear-gradient(180deg,#f8fafc,#e2e8f0 60%,#cbd5e1);
+    radial-gradient(1000px 620px at 12% -8%, rgba(0,240,255,.15), transparent 62%),
+    radial-gradient(800px 520px at 88% 108%, rgba(249,115,22,.12), transparent 52%),
+    var(--bg);
 }
 #rejilla{position:fixed;inset:0;z-index:-1;pointer-events:none;
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
@@ -470,7 +469,7 @@ table.tabla tr.top td{background:linear-gradient(90deg,rgba(250,204,21,.10),tran
       
       <!-- CANVA TALLER 360 -->
       <div style="text-align:center; margin-bottom:10px;">
-        <canvas id="canvasTaller" width="300" height="150" style="background:linear-gradient(180deg, #e2e8f0, #cbd5e1); border-radius:12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.1); border:1px solid var(--brd2);"></canvas>
+        <canvas id="canvasTaller" width="300" height="150" style="background:linear-gradient(180deg, #1e293b, #0f172a); border-radius:12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); border:1px solid var(--brd2);"></canvas>
       </div>
 
       <h2 class="h" id="tPieza">—</h2>
@@ -1844,8 +1843,9 @@ const Juego = (function(){
     cx.closePath();
     cx.fill();
 
-    const dan = (!isTaller && jug && est) ? (1-est.integridad/100) : 0;
-    if(!isTaller && jug && est && est.invul>0 && Math.floor(est.invul*14)%2===0){
+    const estDisp = typeof est !== 'undefined' ? est : null;
+    const dan = (!isTaller && jug && estDisp) ? (1-estDisp.integridad/100) : 0;
+    if(!isTaller && jug && estDisp && estDisp.invul>0 && Math.floor(estDisp.invul*14)%2===0){
       cx.strokeStyle='#ef4444'; cx.lineWidth=3; cx.stroke();
     }
 
