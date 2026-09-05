@@ -245,7 +245,7 @@ function arrancarCarreraRed(forzarInicio = false) {
           
           // Calcular puesto considerando rivales de red
           if (Juego.estado) {
-            const N = Juego.via ? Juego.via.length : 100;
+            const N = 360; // El circuito tiene siempre 360 puntos
             const miProgreso = (Juego.estado.vueltas || 0) * N + (Juego.estado.auto.idx || 0);
             let puesto = 1;
             Object.values(rivalesRed).forEach(r => {

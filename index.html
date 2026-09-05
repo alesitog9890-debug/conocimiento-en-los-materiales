@@ -1277,9 +1277,9 @@ const Juego = (function(){
       cfg:cfg,
       auto:nuevoAuto(p0.x+nx*lat - p0.tx*lon, p0.y+ny*lat - p0.ty*lon, ang, cfg.colorAuto, true),
       rivales: window.enModoRed ? [] : [
-        Object.assign(nuevoAuto(p0.x+nx*40, p0.y+ny*40, ang, '#f97316'), {nom:'Extrusor 900', hab:0.910, off:38}),
-        Object.assign(nuevoAuto(p0.x+nx*40 - p0.tx*110, p0.y+ny*40 - p0.ty*110, ang, '#a78bfa'), {nom:'Vulcanix', hab:0.865, off:-42}),
-        Object.assign(nuevoAuto(p0.x+nx*(-40) - p0.tx*110, p0.y+ny*(-40) - p0.ty*110, ang, '#22c55e'), {nom:'Termo-Kart', hab:0.815, off:16})
+        Object.assign(nuevoAuto(p0.x+nx*40, p0.y+ny*40, ang, '#ea580c'), {nom:'Extrusor 900', hab:0.830, off:38}),
+        Object.assign(nuevoAuto(p0.x+nx*40 - p0.tx*110, p0.y+ny*40 - p0.ty*110, ang, '#7c3aed'), {nom:'Vulcanix', hab:0.790, off:-42}),
+        Object.assign(nuevoAuto(p0.x+nx*(-40) - p0.tx*110, p0.y+ny*(-40) - p0.ty*110, ang, '#16a34a'), {nom:'Termo-Kart', hab:0.750, off:16})
       ],
       hp:cfg.hp, integridad:100, tiempo:0, cuenta:3.2, estado: window.enModoRed ? 'esperando_red' : 'cuenta',
       vueltas:0, mejorVuelta:0, tVuelta:0,
@@ -1658,6 +1658,21 @@ const Juego = (function(){
     est.estado='fin';
     corriendo=false;
     if(raf){ cancelAnimationFrame(raf); raf=null; }
+    
+    // Recalcular última vez exacto
+    if (motivo === 'meta') {
+      posiciones(); // Arcade
+      if (window.enModoRed && window.rivalesRed) {
+        const N = 360;
+        const miProg = est.vueltas * N + est.auto.idx;
+        let p = 1;
+        Object.values(window.rivalesRed).forEach(r => {
+           if (((r.vueltas||0)*N + (r.idx||0)) > miProg) p++;
+        });
+        est.puesto = p;
+      }
+    }
+
     if(cb.fin) cb.fin({
       motivo:motivo, tiempo:est.tiempo, hp:Math.max(0,Math.round(est.hp)),
       integridad:Math.max(0,Math.round(est.integridad)), puesto:est.puesto,
@@ -2177,6 +2192,17 @@ function terminarCarrera(r){
   const positivo = llego && r.integridad===100 && r.hp===100;
 
   if (window.enModoRed && window.socket && window.socket.connected) {
+    // Enviar último update para asegurar que el resto nos vea terminados
+    if (typeof Juego !== 'undefined' && Juego.estado) {
+      window.socket.emit('playerUpdate', {
+        x: Juego.estado.auto.x,
+        y: Juego.estado.auto.y,
+        ang: Juego.estado.auto.ang,
+        speed: 0,
+        vueltas: Juego.estado.vueltas,
+        idx: Juego.estado.auto.idx
+      });
+    }
     window.socket.emit('playerFinished', {
       tiempo: r.tiempo,
       puesto: r.puesto,
@@ -2225,9 +2251,10 @@ function terminarCarrera(r){
     $('#pTitulo').textContent='¡Ganaste la carrera!';
     $('#pSub').textContent='Primero en pista. Fijate abajo qué pieza te costó integridad para ir por el positivo extra.';
   }else{
+    const total = window.enModoRed ? (1 + Object.keys(window.rivalesRed||{}).length) : 4;
     $('#pEtiq').textContent='Resultado de la carrera';
     $('#pTitulo').textContent='Llegaste a la meta';
-    $('#pSub').textContent='Terminaste '+r.puesto+'° de 4. Cambiá el proceso de las piezas que te fallaron y volvé a correr.';
+    $('#pSub').textContent='Terminaste '+r.puesto+'° de '+total+'. Cambiá el proceso de las piezas que te fallaron y volvé a correr.';
   }
 
   const falta=[];
