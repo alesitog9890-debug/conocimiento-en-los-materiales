@@ -15,28 +15,28 @@
   --f-d:'Orbitron','Rajdhani',system-ui,-apple-system,'Segoe UI',sans-serif;
   --f-b:'Rajdhani',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 
-  /* Fondo Industrial Oscuro (Alto Contraste para Proyector) */
-  --bg:#0b0f19;
-  --bg2:#1e293b;
-  --panel:rgba(15,23,42,.85);
-  --panel2:rgba(30,41,59,.95);
-  --brd:rgba(0,240,255,.5);
-  --brd2:rgba(148,163,184,.3);
+  /* Fondo Intermedio Industrial — ni claro ni oscuro */
+  --bg:#1b2838;
+  --bg2:#263545;
+  --panel:rgba(30,50,70,.82);
+  --panel2:rgba(38,60,85,.92);
+  --brd:rgba(0,200,255,.45);
+  --brd2:rgba(120,160,200,.25);
 
-  /* Acentos de Plástico Vibrante */
-  --cyan:#00f0ff;
-  --orange:#f97316;
-  --green:#22c55e;
-  --red:#ef4444;
-  --yellow:#facc15;
+  /* Acentos Vibrantes (llamativos para todas las edades) */
+  --cyan:#00d4ff;
+  --orange:#ff8c2e;
+  --green:#34d399;
+  --red:#f43f5e;
+  --yellow:#fbbf24;
   --violet:#a78bfa;
 
-  /* Texto claro para contraste sobre oscuro */
-  --ink:#ffffff;
-  --ink2:#e2e8f0;
-  --ink3:#94a3b8;
+  /* Texto claro */
+  --ink:#f1f5f9;
+  --ink2:#cbd5e1;
+  --ink3:#8899aa;
 
-  --grid:rgba(255,255,255,.07);
+  --grid:rgba(255,255,255,.05);
 }
 
 *{box-sizing:border-box}
@@ -57,9 +57,10 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 /* ================= FONDO ================= */
 #fondo{position:fixed;inset:0;z-index:-2;
   background:
-    radial-gradient(1000px 620px at 12% -8%, rgba(0,240,255,.15), transparent 62%),
-    radial-gradient(800px 520px at 88% 108%, rgba(249,115,22,.12), transparent 52%),
-    var(--bg);
+    radial-gradient(1100px 700px at 10% -5%, rgba(0,180,255,.18), transparent 60%),
+    radial-gradient(900px 600px at 90% 110%, rgba(255,120,40,.14), transparent 55%),
+    radial-gradient(600px 600px at 50% 40%, rgba(167,139,250,.08), transparent 65%),
+    linear-gradient(170deg, #1b2838, #243447 50%, #1e3040);
 }
 #rejilla{position:fixed;inset:0;z-index:-1;pointer-events:none;
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
@@ -469,7 +470,7 @@ table.tabla tr.top td{background:linear-gradient(90deg,rgba(250,204,21,.10),tran
       
       <!-- CANVA TALLER 360 -->
       <div style="text-align:center; margin-bottom:10px;">
-        <canvas id="canvasTaller" width="300" height="150" style="background:linear-gradient(180deg, #1e293b, #0f172a); border-radius:12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); border:1px solid var(--brd2);"></canvas>
+        <canvas id="canvasTaller" width="300" height="150" style="background:linear-gradient(180deg, #263545, #1b2838); border-radius:12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.3), 0 0 20px rgba(0,180,255,0.08); border:1px solid var(--brd2);"></canvas>
       </div>
 
       <h2 class="h" id="tPieza">—</h2>
@@ -1282,9 +1283,9 @@ const Juego = (function(){
       cfg:cfg,
       auto:nuevoAuto(p0.x+nx*lat - p0.tx*lon, p0.y+ny*lat - p0.ty*lon, ang, cfg.colorAuto, true),
       rivales: window.enModoRed ? [] : [
-        Object.assign(nuevoAuto(p0.x+nx*40, p0.y+ny*40, ang, '#ea580c'), {nom:'Extrusor 900', hab:0.830, off:38}),
-        Object.assign(nuevoAuto(p0.x+nx*40 - p0.tx*110, p0.y+ny*40 - p0.ty*110, ang, '#7c3aed'), {nom:'Vulcanix', hab:0.790, off:-42}),
-        Object.assign(nuevoAuto(p0.x+nx*(-40) - p0.tx*110, p0.y+ny*(-40) - p0.ty*110, ang, '#16a34a'), {nom:'Termo-Kart', hab:0.750, off:16})
+        Object.assign(nuevoAuto(p0.x+nx*40, p0.y+ny*40, ang, '#ea580c'), {nom:'Extrusor 900', hab:0.700, off:38}),
+        Object.assign(nuevoAuto(p0.x+nx*40 - p0.tx*110, p0.y+ny*40 - p0.ty*110, ang, '#7c3aed'), {nom:'Vulcanix', hab:0.650, off:-42}),
+        Object.assign(nuevoAuto(p0.x+nx*(-40) - p0.tx*110, p0.y+ny*(-40) - p0.ty*110, ang, '#16a34a'), {nom:'Termo-Kart', hab:0.600, off:16})
       ],
       hp:cfg.hp, integridad:100, tiempo:0, cuenta:3.2, estado: window.enModoRed ? 'esperando_red' : 'cuenta',
       vueltas:0, mejorVuelta:0, tVuelta:0,
@@ -1927,11 +1928,11 @@ const Juego = (function(){
     cx = ctxTaller;
     const cvw = ctxTaller.canvas.width;
     const cvh = ctxTaller.canvas.height;
-    const autoObj = { x: cvw/2, y: cvh/2, ang: angTaller, color: color };
+    const autoObj = { x: 0, y: 0, ang: angTaller, color: color };
     
     cx.save();
-    cx.scale(2.2, 2.2);
-    cx.translate(-cvw/4.4 + 40, -cvh/4.4 + 20);
+    cx.translate(cvw / 2, cvh / 2);
+    cx.scale(2.5, 2.5);
     
     dibujarAuto(autoObj, false, true); 
     
