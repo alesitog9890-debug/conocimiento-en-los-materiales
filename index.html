@@ -1283,9 +1283,9 @@ const Juego = (function(){
       cfg:cfg,
       auto:nuevoAuto(p0.x+nx*lat - p0.tx*lon, p0.y+ny*lat - p0.ty*lon, ang, cfg.colorAuto, true),
       rivales: window.enModoRed ? [] : [
-        Object.assign(nuevoAuto(p0.x+nx*40, p0.y+ny*40, ang, '#ea580c'), {nom:'Extrusor 900', hab:0.700, off:38}),
-        Object.assign(nuevoAuto(p0.x+nx*40 - p0.tx*110, p0.y+ny*40 - p0.ty*110, ang, '#7c3aed'), {nom:'Vulcanix', hab:0.650, off:-42}),
-        Object.assign(nuevoAuto(p0.x+nx*(-40) - p0.tx*110, p0.y+ny*(-40) - p0.ty*110, ang, '#16a34a'), {nom:'Termo-Kart', hab:0.600, off:16})
+        Object.assign(nuevoAuto(p0.x+nx*40, p0.y+ny*40, ang, '#ea580c'), {nom:'Extrusor 900', hab:0.780, off:38}),
+        Object.assign(nuevoAuto(p0.x+nx*40 - p0.tx*110, p0.y+ny*40 - p0.ty*110, ang, '#7c3aed'), {nom:'Vulcanix', hab:0.740, off:-42}),
+        Object.assign(nuevoAuto(p0.x+nx*(-40) - p0.tx*110, p0.y+ny*(-40) - p0.ty*110, ang, '#16a34a'), {nom:'Termo-Kart', hab:0.700, off:16})
       ],
       hp:cfg.hp, integridad:100, tiempo:0, cuenta:3.2, estado: window.enModoRed ? 'esperando_red' : 'cuenta',
       vueltas:0, mejorVuelta:0, tVuelta:0,
@@ -1494,6 +1494,7 @@ const Juego = (function(){
     if(est.pasoMitad && a.prevIdx>N*0.85 && a.idx<N*0.15){
       est.pasoMitad=false;
       est.vueltas++;
+      est.auto.vueltas = est.vueltas; // CRÍTICO: sincronizar para que posiciones() funcione
       if(est.mejorVuelta===0||est.tVuelta<est.mejorVuelta) est.mejorVuelta=est.tVuelta;
       est.tVuelta=0;
       if(est.vueltas>=VUELTAS){ terminar('meta'); return; }
