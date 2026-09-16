@@ -183,6 +183,8 @@ arrancarCarrera = function() {
 }
 
 function arrancarCarreraRed(forzarInicio = false) {
+  // Registrar partida en modo sala (contador global)
+  if (typeof registrarPartida === 'function') registrarPartida('sala');
   // Versión de arrancarCarrera para red
   pantalla('s-pista');
   document.getElementById('boxes').classList.remove('ver');

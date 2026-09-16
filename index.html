@@ -429,9 +429,9 @@ table.tabla tr.top td{background:linear-gradient(90deg,rgba(250,204,21,.10),tran
       </div>
 
       <div class="contadores">
-        <div class="cont"><b id="cVisitas">0</b><span>Visitas a la web</span><em>1 pto c/u</em></div>
-        <div class="cont"><b id="cJugadas">0</b><span>Partidas jugadas</span><em>3 ptos c/u</em></div>
-        <div class="cont total"><b id="cPuntos">0</b><span>Puntos de interacción</span><em>del juego</em></div>
+        <div class="cont total"><b id="cTotal">···</b><span>Partidas totales</span><em>global</em></div>
+        <div class="cont"><b id="cParticular">···</b><span>Modo particular</span><em>🏎️ solitario</em></div>
+        <div class="cont"><b id="cSala">···</b><span>Modo sala</span><em>🏁 multijugador</em></div>
       </div>
 
       <div class="mt2">
@@ -2095,16 +2095,47 @@ function pantalla(id){
   window.scrollTo(0,0);
 }
 
-/* ================= CONTADORES DEL TP ================= */
-function contar(){
-  const v=+alm.get('pr_visitas','0'), j=+alm.get('pr_jugadas','0');
-  $('#cVisitas').textContent=v;
-  $('#cJugadas').textContent=j;
-  $('#cPuntos').textContent=v*1+j*3;
+/* ================= CONTADORES GLOBALES DEL TP ================= */
+const OFFSET_PARTICULAR = 123;
+const OFFSET_SALA = 37;
+
+function leerBadgeCount(path) {
+  return fetch('https://api.visitorbadge.io/api/visitors?path=' + encodeURIComponent(path) + '&countColor=%23000&labelColor=%23000&style=flat&label=x')
+    .then(r => r.text())
+    .then(svg => {
+      const m = svg.match(/>\s*(\d[\d,]*)\s*</);
+      return m ? parseInt(m[1].replace(/,/g, ''), 10) : 0;
+    })
+    .catch(() => 0);
 }
-(function marcarVisita(){
-  alm.set('pr_visitas', String((+alm.get('pr_visitas','0'))+1));
-})();
+
+function pingBadge(path) {
+  const img = new Image();
+  img.src = 'https://api.visitorbadge.io/api/visitors?path=' + encodeURIComponent(path) + '&countColor=%23000&label=x&style=flat&t=' + Date.now();
+}
+
+function actualizarContadores() {
+  Promise.all([
+    leerBadgeCount('alesitog9890.polimeros.partidas.particular'),
+    leerBadgeCount('alesitog9890.polimeros.partidas.sala')
+  ]).then(([rawP, rawS]) => {
+    const p = rawP + OFFSET_PARTICULAR;
+    const s = rawS + OFFSET_SALA;
+    const el = id => document.getElementById(id);
+    if (el('cParticular')) el('cParticular').textContent = p;
+    if (el('cSala'))       el('cSala').textContent = s;
+    if (el('cTotal'))      el('cTotal').textContent = p + s;
+  });
+}
+
+function registrarPartida(modo) {
+  pingBadge('alesitog9890.polimeros.partidas.' + modo);
+  // Actualizar la UI tras un breve delay para que el badge se registre
+  setTimeout(actualizarContadores, 2000);
+}
+
+// Cargar contadores al inicio
+(function() { setTimeout(actualizarContadores, 500); })();
 
 /* ================= CÓDIGO FIRMADO ================= */
 const SAL='G5|UTN|CIENCIA-MATERIALES|PROCESAMIENTO|POLYMER-RACER|v1';
@@ -2207,8 +2238,7 @@ function pintarResumen(){
 let ultimoResultado=null;
 
 function arrancarCarrera(){
-  alm.set('pr_jugadas', String((+alm.get('pr_jugadas','0'))+1));
-  contar();
+  registrarPartida('particular');
   pantalla('s-pista');
   $('#boxes').classList.remove('ver');
   Aud.abrir(); Aud.arrancarMotor();
@@ -2608,7 +2638,7 @@ function pintarPistas(){
   s.innerHTML=op;
   s.value=alm.get('pr_legajo','1');
   $('#inNombre').value=alm.get('pr_nombre','');
-  contar();
+  actualizarContadores();
   pintarPistas();
   $('#bSonido').textContent=Aud.activo()?'🔊':'🔇';
 
